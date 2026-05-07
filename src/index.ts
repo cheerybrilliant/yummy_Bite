@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import prisma from './prisma'
 import authRoutes from './routes/authRoutes'
+import orderRoutes from './routes/orderRoutes'
 
 dotenv.config()
 
@@ -14,6 +15,7 @@ app.use(express.json())
 
 // Routes
 app.use('/api/auth', authRoutes)
+app.use('/api/orders', orderRoutes)
 
 // Test route
 app.get('/', (req, res) => {
