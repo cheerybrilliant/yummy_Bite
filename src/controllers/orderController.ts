@@ -24,12 +24,12 @@ export const placeOrder = async (req: AuthRequest, res: Response) => {
 
     const order = await prisma.order.create({
       data: {
-        studentId,
+        student: { connect: { id: studentId } },
         totalAmount,
         status: 'PENDING_PAYMENT',
         items: {
           create: items.map((item: { dishId: string; quantity: number }) => ({
-            dishId: item.dishId,
+            dish: { connect: { id: item.dishId } },
             quantity: item.quantity,
             price: 0
           }))
@@ -74,7 +74,7 @@ export const getAllOrders = async (req: AuthRequest, res: Response) => {
 
 export const getOrderById = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const order = await prisma.order.findUnique({
       where: { id },
       include: {
@@ -95,9 +95,9 @@ export const getOrderById = async (req: AuthRequest, res: Response) => {
 
 export const getStudentOrders = async (req: AuthRequest, res: Response) => {
   try {
-    const { studentId } = req.params
+    const studentId = req.params.studentId as string
     const orders = await prisma.order.findMany({
-      where: { studentId },
+      where: { student: { id: studentId } },
       include: {
         items: { include: { dish: { select: { id: true, name: true, price: true } } } },
         payment: true,
@@ -113,7 +113,7 @@ export const getStudentOrders = async (req: AuthRequest, res: Response) => {
 
 export const updateOrderStatus = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const { status } = req.body
 
     const order = await prisma.order.update({
@@ -122,9 +122,14 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response) => {
     })
 
     if (status === 'COMPLETED') {
-      await prisma.receipt.create({
-        data: { orderId: id }
+      const existingReceipt = await prisma.receipt.findUnique({
+        where: { orderId: id }
       })
+      if (!existingReceipt) {
+        await prisma.receipt.create({
+          data: { order: { connect: { id } } }
+        })
+      }
     }
 
     res.json({ message: 'Order status updated', order })
