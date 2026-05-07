@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import prisma from './prisma'
+import authRoutes from './routes/authRoutes'
 
 dotenv.config()
 
@@ -11,11 +12,14 @@ const PORT = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
+// Routes
+app.use('/api/auth', authRoutes)
+
+// Test route
 app.get('/', (req, res) => {
   res.json({ message: 'Epic Bite API is running' })
 })
 
-// Test database connection
 async function main() {
   try {
     await prisma.$connect()
