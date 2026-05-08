@@ -9,10 +9,10 @@ import authRoutes from './routes/authRoutes'
 import orderRoutes from './routes/orderRoutes'
 
 // Member 2 Routes (Your Work)
-import dishRoutes from './routes/dishroutes'
-import dailyMenuRoutes from './routes/dailymenuroutes'
-import paymentRoutes from './routes/paymentroutes'
-import receiptRoutes from './routes/recieptroutes'
+import dishroutes from './routes/dishroutes'
+import dailymenuroutes from './routes/dailymenuroutes'
+import paymentroutes from './routes/paymentroutes'
+import recieptroutes from './routes/recieptroutes'
 
 dotenv.config()
 
@@ -30,10 +30,10 @@ app.use('/api/auth', authRoutes)
 app.use('/api/orders', orderRoutes)
 
 // Menu Management + Payment + Receipt (Member 2 - You)
-app.use('/api/dishes', dishRoutes)
-app.use('/api/daily-menu', dailyMenuRoutes)
-app.use('/api/payments', paymentRoutes)
-app.use('/api/receipts', receiptRoutes)
+app.use('/api/dishes', dishroutes)
+app.use('/api/daily-menu', dailymenuroutes)
+app.use('/api/payments', paymentroutes)
+app.use('/api/receipts', recieptroutes)
 
 // Test Route
 app.get('/', (req, res) => {
