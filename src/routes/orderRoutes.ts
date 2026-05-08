@@ -7,7 +7,7 @@ import {
   updateOrderStatus
 } from '../controllers/orderController'
 import { protect, restrictTo } from '../middleware/authMiddleware'
-
+// All routes related to orders
 const router = Router()
 
 // Student places an order

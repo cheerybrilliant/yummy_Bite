@@ -30,7 +30,7 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction) => 
     return res.status(401).json({ message: 'Not authorized, invalid token' })
   }
 }
-
+// Check if user is logged in and has the required role
 // Check role
 export const restrictTo = (...roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
