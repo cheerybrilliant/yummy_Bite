@@ -9,7 +9,7 @@ export interface AuthRequest extends Request {
   }
 }
 
-// Verify JWT token
+// Verify JWT token and attach user info to request
 export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization
 

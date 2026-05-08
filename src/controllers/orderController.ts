@@ -131,9 +131,9 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response) => {
         })
       }
     }
-//thi s is the end of the file, I just want to make sure that the code is complete and correct before I submit it.
-    res.json({ message: 'Order status updated', order })
+//this is the end of the file, I just want to make sure that the code is complete and correct before I submit it.
+   res.json({ message: 'Order status updated', order })
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong', error })
   }
-}
+}   

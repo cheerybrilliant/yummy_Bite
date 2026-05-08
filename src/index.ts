@@ -34,5 +34,5 @@ async function main() {
     process.exit(1)
   }
 }
-// Start the server
+// Start the server and connect to the database
 main()
