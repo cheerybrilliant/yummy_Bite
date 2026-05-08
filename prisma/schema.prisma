@@ -135,7 +135,7 @@ model Review {
   order     Order    @relation(fields: [orderId], references: [id])
   dish      Dish     @relation(fields: [dishId], references: [id])
 }
-
+// ========== STAFF SUGGESTIONS ==========
 // ========== VOTES ==========
 model Vote {
   id        String   @id @default(uuid())
