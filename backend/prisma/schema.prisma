@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── TEMPORARY STUB MODELS ─────────────────────────────────────────────────
+// These will be replaced by Member 1's full models when he pushes to GitHub.
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     String   @default("student")
+  reviews  Review[] @relation("StudentReviews")
+  votes    Vote[]   @relation("StudentVotes")
+}
+
+model Order {
+  id     Int     @id @default(autoincrement())
+  review Review?
+}
+
+model Dish {
+  id      Int      @id @default(autoincrement())
+  name    String
+  reviews Review[]
+  ballots Ballot[] @relation("BallotDishes")
+}
+
+// ─── YOUR MODELS ───────────────────────────────────────────────────────────
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  orderId   Int      @unique
+  dishId    Int
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  student   User     @relation("StudentReviews", fields: [studentId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id])
+  dish      Dish     @relation(fields: [dishId], references: [id])
+}
+
+model Ballot {
+  id          Int       @id @default(autoincrement())
+  weekLabel   String
+  isOpen      Boolean   @default(true)
+  confirmedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  options     Dish[]    @relation("BallotDishes")
+  votes       Vote[]
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  studentId Int      @unique
+  ballotId  Int
+  dishIds   Json
+  createdAt DateTime @default(now())
+
+  student   User     @relation("StudentVotes", fields: [studentId], references: [id])
+  ballot    Ballot   @relation(fields: [ballotId], references: [id])
+}
