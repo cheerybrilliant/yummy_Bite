@@ -7,65 +7,141 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── TEMPORARY STUB MODELS ─────────────────────────────────────────────────
-// These will be replaced by Member 1's full models when he pushes to GitHub.
-
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String
-  email    String   @unique
-  password String
-  role     String   @default("student")
-  reviews  Review[] @relation("StudentReviews")
-  votes    Vote[]   @relation("StudentVotes")
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  phone     String
+  createdAt DateTime @default(now())
+
+  orders  Order[]
+  reviews Review[]
+  votes   Vote[]
 }
 
-model Order {
-  id     Int     @id @default(autoincrement())
-  review Review?
+enum Role {
+  STUDENT
+  STAFF
+  ADMIN
 }
 
 model Dish {
-  id      Int      @id @default(autoincrement())
-  name    String
-  reviews Review[]
-  ballots Ballot[] @relation("BallotDishes")
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  category    Category
+  image       String
+  createdAt   DateTime @default(now())
+
+  dailyMenus DailyMenu[]
+  orderItems OrderItem[]
+  reviews    Review[]
+  votes      Vote[]
 }
 
-// ─── YOUR MODELS ───────────────────────────────────────────────────────────
+enum Category {
+  BREAKFAST
+  LUNCH
+  SNACK
+}
+
+model DailyMenu {
+  id       String   @id @default(uuid())
+  date     DateTime @default(now())
+  quantity Int
+  isActive Boolean  @default(true)
+  dishId   String
+  dish     Dish     @relation(fields: [dishId], references: [id])
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  totalAmount Float
+  status      OrderStatus @default(PENDING_PAYMENT)
+  createdAt   DateTime    @default(now())
+  studentId   String
+  student     User        @relation(fields: [studentId], references: [id])
+
+  items   OrderItem[]
+  payment Payment?
+  receipt Receipt?
+  reviews Review[]
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  AWAITING_VERIFICATION
+  PAYMENT_CONFIRMED
+  PREPARING
+  READY_FOR_COLLECTION
+  COMPLETED
+  ABANDONED
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  quantity Int
+  price    Float
+  orderId  String
+  dishId   String
+  order    Order  @relation(fields: [orderId], references: [id])
+  dish     Dish   @relation(fields: [dishId], references: [id])
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  screenshot     String
+  transactionId  String
+  status         PaymentStatus @default(PENDING)
+  rejectedReason String?
+  createdAt      DateTime      @default(now())
+  orderId        String        @unique
+  order          Order         @relation(fields: [orderId], references: [id])
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model Receipt {
+  id          String   @id @default(uuid())
+  collectedAt DateTime @default(now())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+}
 
 model Review {
-  id        Int      @id @default(autoincrement())
-  studentId Int
-  orderId   Int      @unique
-  dishId    Int
+  id        String   @id @default(uuid())
   rating    Int
   comment   String?
   createdAt DateTime @default(now())
-
-  student   User     @relation("StudentReviews", fields: [studentId], references: [id])
+  studentId String
+  orderId   String   @unique
+  dishId    String
+  student   User     @relation(fields: [studentId], references: [id])
   order     Order    @relation(fields: [orderId], references: [id])
   dish      Dish     @relation(fields: [dishId], references: [id])
 }
 
-model Ballot {
-  id          Int       @id @default(autoincrement())
-  weekLabel   String
-  isOpen      Boolean   @default(true)
-  confirmedAt DateTime?
-  createdAt   DateTime  @default(now())
-
-  options     Dish[]    @relation("BallotDishes")
-  votes       Vote[]
+model Vote {
+  id        String   @id @default(uuid())
+  count     Int      @default(1)
+  week      String
+  createdAt DateTime @default(now())
+  studentId String
+  dishId    String
+  student   User     @relation(fields: [studentId], references: [id])
+  dish      Dish     @relation(fields: [dishId], references: [id])
 }
 
-model Vote {
-  id        Int      @id @default(autoincrement())
-  studentId Int      @unique
-  ballotId  Int
-  dishIds   Json
+model Ballot {
+  id        String   @id @default(uuid())
+  week      String   @unique
+  isOpen    Boolean  @default(true)
   createdAt DateTime @default(now())
-
-  student   User     @relation("StudentVotes", fields: [studentId], references: [id])
-  ballot    Ballot   @relation(fields: [ballotId], references: [id])
 }
