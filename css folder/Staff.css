@@ -1,0 +1,9 @@
+/* staff.css — cook/kitchen accents (global.css holds the shared system) */
+
+:root {
+    --portal: #2f7d52;
+}
+
+.col h3 {
+    color: #2f7d52;
+}

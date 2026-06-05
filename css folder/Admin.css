@@ -1,0 +1,9 @@
+/* admin.css — admin console accents (global.css holds the shared system) */
+
+:root {
+    --portal: #2f6f9e;
+}
+
+.stat .n {
+    letter-spacing: -.02em;
+}

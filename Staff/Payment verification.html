@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ICT University Cameroon — Online Canteen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css folder/Global.css">
+    <link rel="stylesheet" href="../css folder/Staff.css">
+    <script>
+        window.PAGE = 'paymentVerification';
+        window.SECTION = 'staff';
+        window.PATHS = {
+            home: '../Student/Home.html',
+            menu: '../Student/Menu.html',
+            about: '../Student/About page.html',
+            login: '../Student/Login.html',
+            register: '../Student/Register.html',
+            cart: '../Student/Cart.html',
+            payment: '../Student/Payment.htm',
+            confirmation: '../Student/order.html',
+            receipt: '../Student/Receipt.htm',
+            tracking: '../Student/Order tracking.html',
+            review: '../Student/Review.html',
+            voting: '../Student/Voting.html',
+            staffLogin: 'Staff-login.html',
+            dashboard: 'Staff-dashboard.html',
+            paymentVerification: 'Payment verification.html',
+            adminMenu: '../Admin/Menu-management.html',
+            dailyMenu: '../Admin/Daily-menu.html',
+            votingResults: '../Admin/Voting-results.html',
+            analytics: '../Admin/Analytics.html',
+            manageCooks: '../Admin/Manage-cooks.html'
+        };
+    </script>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="wrap">
+            <div class="brand" onclick="nav('home')"><span class="dot" style="display:none">🍲</span><img class="brand-logo" src="https://ictuniversity.org/wp-content/uploads/2020/08/cropped-ict-u-logo-shield-small-270x270.png" alt="The ICT University" onerror="this.style.display='none';this.previousElementSibling.style.display='grid'">
+                <div>ICTU Canteen<small>The ICT University</small></div>
+            </div>
+            <div class="role-switch" id="roleSwitch"></div>
+        </div>
+    </div>
+    <main id="app" class="wrap"></main>
+    <div id="toasts" class="toast-zone"></div>
+    <div id="modalRoot"></div>
+    <script src="../js/Store.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/Menu.js"></script>
+    <script src="../js/Cart.js"></script>
+    <script src="../js/Payment.js"></script>
+    <script src="../js/Order.js"></script>
+    <script src="../js/Staff.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+
+</html>
