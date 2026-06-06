@@ -182,6 +182,11 @@ function orderStatusToApi(status) {
 }
 
 function orderToUi(order) {
+    const logs = (order.logs || []).map(log => ({
+        action: log.action,
+        note: log.note,
+        time: log.createdAt ? new Date(log.createdAt).getTime() : Date.now(),
+    }));
     return {
         id: order.id,
         customer: order.student ? order.student.name : (S.user && S.user.name) || "Student",
@@ -199,6 +204,7 @@ function orderToUi(order) {
         status: orderStatusToUi(order.status),
         apiStatus: order.status,
         time: order.createdAt ? new Date(order.createdAt).getTime() : Date.now(),
+        logs,
         rating: 0,
         review: "",
     };
@@ -214,10 +220,19 @@ async function syncMenuFromApi() {
 
 async function syncOrdersFromApi() {
     if (!token()) return;
+    const beforeReady = new Set((S.orders || []).filter(o => o.status === "ready").map(o => o.id));
     if (S.admin || S.staff) {
         S.orders = (await api("/api/orders", { headers: authHeaders() })).map(orderToUi);
     } else if (S.user && S.user.id) {
         S.orders = (await api("/api/orders/student/" + S.user.id, { headers: authHeaders() })).map(orderToUi);
+        S.orders.filter(o => o.status === "ready" && !beforeReady.has(o.id) && !S.readyNotified?.[o.id]).forEach(o => {
+            S.readyNotified = S.readyNotified || {};
+            S.readyNotified[o.id] = true;
+            toast("Order ready", "Show order " + o.id + " at the counter.");
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("Yummy Bite order ready", { body: "Order " + o.id + " is ready for pickup." });
+            }
+        });
     }
 }
 
@@ -226,6 +241,14 @@ async function syncFromApi() {
     try {
         await syncMenuFromApi();
         await syncOrdersFromApi();
+        if (S.staff || S.admin) {
+            try {
+                const response = await api("/api/votes/suggestions?status=PENDING", { headers: authHeaders() });
+                S.suggestions = response.suggestions || [];
+            } catch (e) {
+                S.suggestions = S.suggestions || [];
+            }
+        }
         save();
     } catch (e) {
         console.warn("API sync failed; using local cached state", e);
@@ -294,6 +317,7 @@ function logout() { S.user = null;
     S.token = "";
     S.cart = {};
     S.loginRole = null;
+    S.readyNotified = {};
     save();
     nav('home'); }
 
@@ -305,7 +329,7 @@ function renderHeader() {
     if (S.admin) html = '<span class="sess">🛠️ Admin</span><button class="chip" onclick="logout()">Log out</button>';
     else if (S.staff) html = '<span class="sess">👩‍🍳 ' + (S.staff.name || 'Cook') + '</span><button class="chip" onclick="logout()">Log out</button>';
     else if (S.user) html = '<span class="sess">🎓 ' + S.user.name.split(" ")[0] + '</span><button class="chip" onclick="logout()">Log out</button>';
-    else html = '<button class="btn-signin" onclick="nav(\'login\')">Log in / Sign up</button>';
+    else html = '<button class="btn-signin" onclick="nav(\'login\')">Log in</button><button class="chip" onclick="nav(\'register\')">Sign up</button>';
     rs.innerHTML = html;
 }
 
@@ -368,9 +392,7 @@ function mount() {
             el.innerHTML = renderLogin();
             break;
         case "register":
-            S.loginRole = "student";
-            S.authTab = "register";
-            el.innerHTML = renderLogin();
+            el.innerHTML = renderRegister();
             break;
         case "cart":
             el.innerHTML = renderCart();
@@ -425,5 +447,10 @@ function mount() {
 async function initApp() {
     await syncFromApi();
     mount();
+    setInterval(async () => {
+        if (!token() || !["tracking", "dashboard", "paymentVerification"].includes(window.PAGE)) return;
+        await syncFromApi();
+        mount();
+    }, 15000);
 }
 window.addEventListener("DOMContentLoaded", initApp);

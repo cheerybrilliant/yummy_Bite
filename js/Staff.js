@@ -11,8 +11,20 @@ function renderDashboard() {
         '<div class="card stat"><div class="n">' + ready + '</div><div class="l">Ready for pickup</div></div></div>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"><button class="btn sm" onclick="mealForm(\'\')">+ Upload today\'s meal</button>' +
         '<button class="btn sm ghost" onclick="nav(\'paymentVerification\')">Verify payments</button></div>' +
+        renderSuggestionApprovals() +
         '<div class="board">' + ["received", "preparing", "ready"].map(st => '<div class="col"><h3>' + STATUS_LBL[st] + ' <span class="count">' + cols[st].length + '</span></h3>' +
             (cols[st].length ? cols[st].map(o => kCard(o, st)).join("") : '<div class="empty" style="padding:24px"><div class="em">No tickets</div></div>') + '</div>').join("") + '</div></section>';
+}
+
+function renderSuggestionApprovals() {
+    const pending = S.suggestions || [];
+    if (!pending.length) {
+        return '<div class="card" style="padding:18px;margin-bottom:18px"><b>Weekly suggestions</b><div style="color:var(--ink-soft);font-size:.9rem;margin-top:4px">No pending meal suggestions.</div></div>';
+    }
+    return '<div class="card" style="padding:18px;margin-bottom:18px"><b>Weekly meal suggestions to approve</b>' +
+        pending.map(s => '<div class="line-item"><div style="flex:1"><b>' + s.name + '</b><div style="color:var(--ink-soft);font-size:.85rem">' + (s.description || 'No description') + ' - ' + s.week + '</div></div>' +
+            '<button class="btn sm green" onclick="reviewSuggestion(\'' + s.id + '\',\'APPROVED\')">Can cook</button>' +
+            '<button class="btn sm ghost" onclick="reviewSuggestion(\'' + s.id + '\',\'REJECTED\')">Reject</button></div>').join("") + '</div>';
 }
 
 function kCard(o, st) {
@@ -57,5 +69,17 @@ async function verifyPay(paymentId) {
         toast("Payment verified", "Order released to kitchen");
     } catch (e) {
         toast("Verification failed", e.message, "chili");
+    }
+}
+
+async function reviewSuggestion(id, status) {
+    try {
+        await apiJson("/api/votes/suggestions/" + id + "/review", "PUT", { status }, true);
+        await syncFromApi();
+        save();
+        mount();
+        toast("Suggestion reviewed", status === "APPROVED" ? "Marked as cookable" : "Suggestion rejected");
+    } catch (e) {
+        toast("Review failed", e.message, "chili");
     }
 }

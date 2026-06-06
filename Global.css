@@ -179,6 +179,7 @@ textarea {
     border-radius: 99px;
     border: 2px solid var(--ink);
     background: var(--card);
+    color: var(--ink);
     font-weight: 700;
     font-size: .85rem;
     transition: .14s
@@ -1657,6 +1658,21 @@ th {
 
 .role-switch {
     gap: 8px
+}
+
+.role-switch .chip {
+    background: #fff8e8;
+    color: #23170f;
+    border-color: #fff8e8;
+}
+
+.link-btn {
+    border: 0;
+    background: transparent;
+    color: var(--chili);
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0;
 }
 
 .role-cards {

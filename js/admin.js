@@ -243,13 +243,12 @@ async function addCook() {
     const pw = (document.getElementById("ckp").value || "").trim();
     if (!name || !sid || !pw) { toast("Missing details", "Name, Staff ID and password are required", "chili"); return; }
     try {
-        await apiJson("/api/auth/register", "POST", {
+        await apiJson("/api/auth/staff", "POST", {
             name,
             email: sid.includes("@") ? sid : sid + "@ictuniversity.edu.cm",
             password: pw,
             phone: "",
-            role: "STAFF",
-        });
+        }, true);
         S.cooks.push({ id: "c" + Date.now(), name, staffId: sid, pass: pw });
         save();
         mount();

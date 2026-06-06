@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const dailyMenuController_1 = require("../controllers/dailyMenuController");
+const authMiddleware_1 = require("../middleware/authMiddleware");
+const router = (0, express_1.Router)();
+router.post('/', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STAFF', 'ADMIN'), dailyMenuController_1.activateDailyMenu);
+router.get('/today', dailyMenuController_1.getTodayMenu);
+router.put('/:id', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STAFF', 'ADMIN'), dailyMenuController_1.updateDailyMenuStock);
+exports.default = router;
