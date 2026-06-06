@@ -106,6 +106,143 @@ function resetData() { localStorage.removeItem(LS_KEY);
     location.href = PATHS.home; }
 let S = load() || DEFAULT_STATE();
 
+const API_BASE = window.API_BASE || (location.protocol === "file:" ? "http://localhost:5050" : location.origin);
+const API_ON = true;
+
+function token() {
+    return S.token || (S.user && S.user.token) || (S.staff && S.staff.token) || (S.adminUser && S.adminUser.token) || "";
+}
+
+function authHeaders(extra) {
+    const h = Object.assign({}, extra || {});
+    const t = token();
+    if (t) h.Authorization = "Bearer " + t;
+    return h;
+}
+
+async function api(path, opts) {
+    const res = await fetch(API_BASE + path, opts || {});
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+    if (!res.ok) throw new Error((data && data.message) || "Request failed");
+    return data;
+}
+
+async function apiJson(path, method, body, secured) {
+    return api(path, {
+        method: method || "GET",
+        headers: Object.assign({ "Content-Type": "application/json" }, secured ? authHeaders() : {}),
+        body: body ? JSON.stringify(body) : undefined,
+    });
+}
+
+function catToUi(category) {
+    const c = String(category || "Mains");
+    return c === "BREAKFAST" || c === "LUNCH" ? "Mains" : c === "SNACK" ? "Snacks" : c;
+}
+
+function dishToUi(dish, daily) {
+    const source = dish.dish || dish;
+    const qty = typeof dish.quantity === "number" ? dish.quantity : (daily ? 20 : 0);
+    const existing = S.menu.find(m => m.id === source.id) || {};
+    return Object.assign({}, existing, {
+        id: source.id,
+        name: source.name,
+        cat: catToUi(source.category),
+        price: source.price,
+        kind: existing.kind || "generic",
+        img: source.image || "",
+        stock: qty <= 0 ? "out" : qty <= 5 ? "low" : "in",
+        daily: Boolean(daily),
+        dailyMenuId: daily && dish.id ? dish.id : existing.dailyMenuId,
+        votes: existing.votes || 0,
+        rSum: existing.rSum || 0,
+        rCount: existing.rCount || 0,
+    });
+}
+
+function orderStatusToUi(status) {
+    return {
+        PENDING_PAYMENT: "received",
+        AWAITING_VERIFICATION: "received",
+        PAYMENT_CONFIRMED: "received",
+        PREPARING: "preparing",
+        READY_FOR_COLLECTION: "ready",
+        COMPLETED: "collected",
+    }[status] || "received";
+}
+
+function orderStatusToApi(status) {
+    return {
+        received: "PREPARING",
+        preparing: "READY_FOR_COLLECTION",
+        ready: "COMPLETED",
+        collected: "COMPLETED",
+    }[status] || status;
+}
+
+function orderToUi(order) {
+    return {
+        id: order.id,
+        customer: order.student ? order.student.name : (S.user && S.user.name) || "Student",
+        method: order.payment ? "Mobile Money" : "Pending payment",
+        paid: Boolean(order.payment && order.payment.status === "VERIFIED") || ["PAYMENT_CONFIRMED", "PREPARING", "READY_FOR_COLLECTION", "COMPLETED"].includes(order.status),
+        paymentId: order.payment && order.payment.id,
+        paymentStatus: order.payment && order.payment.status,
+        items: (order.items || []).map(item => ({
+            id: item.dishId || (item.dish && item.dish.id),
+            name: item.dish ? item.dish.name : "Dish",
+            qty: item.quantity,
+            price: item.price,
+        })),
+        total: order.totalAmount,
+        status: orderStatusToUi(order.status),
+        apiStatus: order.status,
+        time: order.createdAt ? new Date(order.createdAt).getTime() : Date.now(),
+        rating: 0,
+        review: "",
+    };
+}
+
+async function syncMenuFromApi() {
+    const dishes = await api("/api/dishes");
+    let today = [];
+    try { today = await api("/api/daily-menu/today"); } catch (e) { today = []; }
+    const dailyByDish = new Map(today.map(item => [item.dishId, item]));
+    S.menu = dishes.map(dish => dishToUi(dailyByDish.get(dish.id) || dish, dailyByDish.has(dish.id)));
+}
+
+async function syncOrdersFromApi() {
+    if (!token()) return;
+    if (S.admin || S.staff) {
+        S.orders = (await api("/api/orders", { headers: authHeaders() })).map(orderToUi);
+    } else if (S.user && S.user.id) {
+        S.orders = (await api("/api/orders/student/" + S.user.id, { headers: authHeaders() })).map(orderToUi);
+    }
+}
+
+async function syncFromApi() {
+    if (!API_ON) return;
+    try {
+        await syncMenuFromApi();
+        await syncOrdersFromApi();
+        save();
+    } catch (e) {
+        console.warn("API sync failed; using local cached state", e);
+    }
+}
+
+function setAuthSession(payload) {
+    S.token = payload.token;
+    const role = payload.user.role;
+    const person = Object.assign({}, payload.user, { token: payload.token });
+    S.user = role === "STUDENT" ? person : null;
+    S.staff = role === "STAFF" ? person : null;
+    S.admin = role === "ADMIN";
+    S.adminUser = role === "ADMIN" ? person : null;
+    S.loginRole = null;
+}
+
 const $ = s => document.querySelector(s);
 const cartCount = () => Object.values(S.cart).reduce((a, b) => a + b, 0);
 const cartTotal = () => Object.entries(S.cart).reduce((t, [id, q]) => { const m = S.menu.find(x => x.id === id); return t + (m ? m.price * q : 0) }, 0);
@@ -153,6 +290,8 @@ function closeModal() { const r = $("#modalRoot"); if (r) r.innerHTML = ""; }
 function logout() { S.user = null;
     S.staff = null;
     S.admin = false;
+    S.adminUser = null;
+    S.token = "";
     S.cart = {};
     S.loginRole = null;
     save();
@@ -283,4 +422,8 @@ function mount() {
             el.innerHTML = '<section class="view"><div class="empty"><div class="em">🍽️</div>Page not found.</div></section>';
     }
 }
-window.addEventListener("DOMContentLoaded", mount);
+async function initApp() {
+    await syncFromApi();
+    mount();
+}
+window.addEventListener("DOMContentLoaded", initApp);

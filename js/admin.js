@@ -159,3 +159,102 @@ function removeCook(id) {
     mount();
     toast("Cook removed", (c ? c.name : "Cook") + " can no longer sign in", "chili");
 }
+
+async function delDish(id) {
+    try {
+        await apiJson("/api/dishes/" + id, "DELETE", null, true);
+        await syncFromApi();
+        save();
+        mount();
+        toast("Dish removed", "Menu updated", "chili");
+    } catch (e) {
+        toast("Delete failed", e.message, "chili");
+    }
+}
+
+async function toggleDaily(id) {
+    const m = S.menu.find(x => x.id === id);
+    if (!m) return;
+    try {
+        if (m.daily && m.dailyMenuId) {
+            await apiJson("/api/daily-menu/" + m.dailyMenuId, "PUT", { quantity: 0, isActive: false }, true);
+        } else {
+            const active = S.menu.filter(x => x.daily).map(x => ({ dishId: x.id, quantity: x.stock === "low" ? 5 : 25 }));
+            active.push({ dishId: id, quantity: 25 });
+            await apiJson("/api/daily-menu", "POST", { date: new Date().toISOString(), items: active }, true);
+        }
+        await syncFromApi();
+        save();
+        mount();
+        toast(m.daily ? "Removed from today's menu" : "Added to today's menu", m.name);
+    } catch (e) {
+        toast("Daily menu update failed", e.message, "chili");
+    }
+}
+
+async function publishTop() {
+    const top = [...S.menu].sort((a, b) => (b.votes || 0) - (a.votes || 0)).slice(0, 5).map(m => ({ dishId: m.id, quantity: 25 }));
+    try {
+        await apiJson("/api/daily-menu", "POST", { date: new Date().toISOString(), items: top }, true);
+        await syncFromApi();
+        save();
+        mount();
+        toast("Daily menu published", "Top voted dishes are now today's specials");
+    } catch (e) {
+        toast("Publish failed", e.message, "chili");
+    }
+}
+
+async function saveMeal(id) {
+    const n = (document.getElementById("dn").value || "").trim();
+    if (!n) { toast("Name required", "Give the meal a name", "chili"); return; }
+    const data = {
+        name: n,
+        cat: document.getElementById("dc").value,
+        price: +document.getElementById("dp").value || 0,
+        kind: document.getElementById("dk").value,
+        img: _imgData,
+        stock: document.getElementById("ds").value,
+        daily: document.getElementById("dd").checked,
+    };
+    const body = { name: data.name, description: data.kind, price: data.price, category: data.cat, image: data.img || "" };
+    try {
+        const result = id ? await apiJson("/api/dishes/" + id, "PUT", body, true) : await apiJson("/api/dishes", "POST", body, true);
+        const dishId = id || result.dish.id;
+        if (data.daily) {
+            const active = S.menu.filter(x => x.daily && x.id !== dishId).map(x => ({ dishId: x.id, quantity: x.stock === "low" ? 5 : 25 }));
+            active.push({ dishId, quantity: data.stock === "low" ? 5 : data.stock === "out" ? 0 : 25 });
+            await apiJson("/api/daily-menu", "POST", { date: new Date().toISOString(), items: active }, true);
+        }
+        _imgData = "";
+        closeModal();
+        await syncFromApi();
+        save();
+        mount();
+        toast(id ? "Meal updated" : "Meal uploaded", n + " saved");
+    } catch (e) {
+        toast("Save failed", e.message, "chili");
+    }
+}
+
+async function addCook() {
+    const name = (document.getElementById("ckn").value || "").trim();
+    const sid = (document.getElementById("cks").value || "").trim();
+    const pw = (document.getElementById("ckp").value || "").trim();
+    if (!name || !sid || !pw) { toast("Missing details", "Name, Staff ID and password are required", "chili"); return; }
+    try {
+        await apiJson("/api/auth/register", "POST", {
+            name,
+            email: sid.includes("@") ? sid : sid + "@ictuniversity.edu.cm",
+            password: pw,
+            phone: "",
+            role: "STAFF",
+        });
+        S.cooks.push({ id: "c" + Date.now(), name, staffId: sid, pass: pw });
+        save();
+        mount();
+        toast("Cook added", name + " can now sign in as " + sid);
+    } catch (e) {
+        toast("Cook save failed", e.message, "chili");
+    }
+}

@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("STUDENT")
+  phone     String   @default("")
+  createdAt DateTime @default(now())
+
+  orders  Order[]
+  reviews Review[]
+  votes   Vote[]
+}
+
+model Dish {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String   @default("")
+  price       Float
+  category    String
+  image       String   @default("")
+  createdAt   DateTime @default(now())
+
+  dailyMenus DailyMenu[]
+  orderItems OrderItem[]
+  reviews    Review[]
+  votes      Vote[]
+}
+
+model DailyMenu {
+  id       String   @id @default(uuid())
+  date     DateTime @default(now())
+  quantity Int
+  isActive Boolean  @default(true)
+  dishId   String
+  dish     Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  totalAmount Float
+  status      String   @default("PENDING_PAYMENT")
+  createdAt   DateTime    @default(now())
+  studentId   String
+  student     User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  items   OrderItem[]
+  payment Payment?
+  receipt Receipt?
+  reviews Review[]
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  quantity Int
+  price    Float
+  orderId  String
+  dishId   String
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  dish     Dish   @relation(fields: [dishId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  screenshot     String
+  transactionId  String
+  status         String   @default("PENDING")
+  rejectedReason String?
+  createdAt      DateTime      @default(now())
+  orderId        String        @unique
+  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Receipt {
+  id          String   @id @default(uuid())
+  collectedAt DateTime @default(now())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  studentId String
+  orderId   String
+  dishId    String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  dish      Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  count     Int      @default(1)
+  week      String
+  createdAt DateTime @default(now())
+  studentId String
+  dishId    String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  dish      Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+}
+
+model Ballot {
+  id        String   @id @default(uuid())
+  week      String   @unique
+  isOpen    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
