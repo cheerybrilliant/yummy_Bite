@@ -19,15 +19,25 @@ function renderTracking() {
     const idx = STATUS.indexOf(o.status);
     return '<section class="view">' + studentSubnav('tracking') + '<span class="eyebrow">Order ' + o.id + '</span>' +
         '<h1 class="title">' + (o.status === 'ready' ? 'Ready for pickup' : o.status === 'collected' ? 'Enjoyed?' : 'Cooking your food') + '</h1>' +
-        '<p class="sub">' + (o.status === 'ready' ? 'Your order is ready. Show your Order ID at the counter.' : o.status === 'collected' ? 'Rate your meal so others know what to order.' : (o.paid ? 'The kitchen is working on your order.' : 'Your payment is waiting for staff verification.')) + '</p>' +
+        '<p class="sub">' + trackingMessage(o) + '</p>' +
         '<div style="color:var(--ink-soft);font-weight:700;margin-bottom:12px">Ordered on ' + new Date(o.time).toLocaleString('en-GB') + '</div>' +
         '<div class="card" style="padding:26px"><div class="pipe">' + STATUS.map((s, i) => '<div class="step ' + (i < idx ? 'done' : '') + ' ' + (i === idx ? 'active' : '') + '"><div class="dotn">' + (i < idx ? 'OK' : i + 1) + '</div><div class="lbl">' + STATUS_LBL[s] + '</div></div>').join("") + '</div><hr class="dash">' +
         '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><div>' + o.items.map(i => '<div>' + i.qty + ' x ' + i.name + '</div>').join("") + '</div>' +
         '<div style="text-align:right"><div class="money" style="font-size:1.2rem;color:var(--chili-deep)">' + fmt(o.total) + '</div><div style="color:var(--ink-soft);font-size:.85rem">' + o.method + '</div></div></div>' +
         (o.status === 'ready' ? '<button class="btn green" style="width:100%;margin-top:16px" onclick="markCollected(\'' + o.id + '\')">I picked it up</button>' : '') +
+        (o.apiStatus === 'PENDING_PAYMENT' ? '<button class="btn" style="width:100%;margin-top:16px" onclick="S.pendingPaymentOrder=\'' + o.id + '\';nav(\'payment\')">Upload payment proof</button>' : '') +
         (o.status === 'collected' && !o.rating ? '<button class="btn" style="width:100%;margin-top:16px" onclick="S.activeOrder=\'' + o.id + '\';nav(\'review\')">Rate this order</button>' : '') + '</div>' +
         renderOrderLogs(o) +
         (mine.length > 1 ? '<h3 style="font-family:var(--disp);margin:24px 0 10px">Order history</h3>' + mine.map(x => '<div class="card" style="padding:14px 18px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="S.activeOrder=\'' + x.id + '\';save();mount()"><div><b class="money">' + x.id + '</b> - ' + x.items.length + ' item(s)<div style="color:var(--ink-soft);font-size:.82rem">' + new Date(x.time).toLocaleString('en-GB') + '</div></div><span class="pill ' + (x.status === 'collected' ? 'in' : x.status === 'ready' ? 'low' : 'out') + '">' + STATUS_LBL[x.status] + '</span></div>').join("") : '') + '</section>';
+}
+
+function trackingMessage(o) {
+    if (o.paymentStatus === "REJECTED") return "Your payment proof was rejected: " + (o.rejectedReason || "please upload clearer proof.");
+    if (o.apiStatus === "PENDING_PAYMENT") return "Pay the canteen MoMo number and upload your screenshot plus transaction ID.";
+    if (o.apiStatus === "AWAITING_VERIFICATION") return "Your proof is waiting for staff verification.";
+    if (o.status === "ready") return "Your order is ready. Show your Order ID at the counter.";
+    if (o.status === "collected") return "Rate your meal so others know what to order.";
+    return o.paid ? "The kitchen is working on your order." : "Your payment is waiting for staff verification.";
 }
 
 function renderOrderLogs(o) {

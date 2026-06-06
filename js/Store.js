@@ -108,6 +108,7 @@ let S = load() || DEFAULT_STATE();
 
 const API_BASE = window.API_BASE || (location.protocol === "file:" ? "http://localhost:5050" : location.origin);
 const API_ON = true;
+const CANTEEN_MOMO_NUMBER = window.CANTEEN_MOMO_NUMBER || "6 70 00 00 00";
 
 function token() {
     return S.token || (S.user && S.user.token) || (S.staff && S.staff.token) || (S.adminUser && S.adminUser.token) || "";
@@ -194,6 +195,9 @@ function orderToUi(order) {
         paid: Boolean(order.payment && order.payment.status === "VERIFIED") || ["PAYMENT_CONFIRMED", "PREPARING", "READY_FOR_COLLECTION", "COMPLETED"].includes(order.status),
         paymentId: order.payment && order.payment.id,
         paymentStatus: order.payment && order.payment.status,
+        transactionId: order.payment && order.payment.transactionId,
+        rejectedReason: order.payment && order.payment.rejectedReason,
+        screenshot: order.payment && order.payment.screenshot ? API_BASE + "/" + order.payment.screenshot.replaceAll("\\", "/") : "",
         items: (order.items || []).map(item => ({
             id: item.dishId || (item.dish && item.dish.id),
             name: item.dish ? item.dish.name : "Dish",

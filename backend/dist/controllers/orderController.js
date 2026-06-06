@@ -156,10 +156,24 @@ const updateOrderStatus = async (req, res) => {
     try {
         const id = req.params.id;
         const { status } = req.body;
+        const existing = await prisma_1.default.order.findUnique({
+            where: { id },
+            include: { payment: true },
+        });
+        if (!existing) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
         if (req.user.role === 'STUDENT') {
-            const existing = await prisma_1.default.order.findUnique({ where: { id } });
             if (!existing || existing.studentId !== req.user.id || status !== 'COMPLETED' || existing.status !== 'READY_FOR_COLLECTION') {
                 return res.status(403).json({ message: 'You do not have permission to update this order' });
+            }
+        }
+        else {
+            if (status === 'PREPARING' && existing.status !== 'PAYMENT_CONFIRMED') {
+                return res.status(400).json({ message: 'Payment must be confirmed before cooking starts' });
+            }
+            if (status === 'READY_FOR_COLLECTION' && existing.status !== 'PREPARING') {
+                return res.status(400).json({ message: 'Order must be preparing before it can be marked ready' });
             }
         }
         const order = await prisma_1.default.order.update({

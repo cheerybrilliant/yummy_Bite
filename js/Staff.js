@@ -55,8 +55,13 @@ async function advance(id) {
 function renderPaymentVerification() {
     const pending = S.orders.filter(o => o.paymentId && o.paymentStatus === "PENDING");
     return '<section class="view">' + staffSubnav('paymentVerification') + '<span class="eyebrow">Kitchen</span><h1 class="title">Payment verification</h1>' +
-        '<p class="sub">Confirm Mobile Money payments before the order is released to the kitchen.</p>' +
-        (pending.length ? '<div class="card" style="padding:8px 22px 18px">' + pending.map(o => '<div class="line-item"><div style="flex:1"><b class="money">' + o.id + '</b> - ' + o.customer + '<div style="color:var(--ink-soft);font-size:.85rem">' + o.method + ' - <span class="money">' + fmt(o.total) + '</span></div></div><button class="btn sm green" onclick="verifyPay(\'' + o.paymentId + '\')">Verify</button></div>').join("") + '</div>' :
+        '<p class="sub">Check the screenshot, transaction ID, and amount before releasing the order to the kitchen.</p>' +
+        (pending.length ? '<div class="grid-2" style="align-items:start">' + pending.map(o => '<div class="card" style="padding:18px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b class="money">' + o.id + '</b><div style="color:var(--ink-soft);font-size:.85rem">' + o.customer + ' - ' + new Date(o.time).toLocaleString('en-GB') + '</div></div><span class="pill low">Pending</span></div>' +
+            '<div class="summary"><span>Amount</span><span class="money">' + fmt(o.total) + '</span></div>' +
+            '<div class="summary"><span>Transaction ID</span><span class="money">' + (o.transactionId || 'Missing') + '</span></div>' +
+            (o.screenshot ? '<a href="' + o.screenshot + '" target="_blank" rel="noopener"><img src="' + o.screenshot + '" alt="Payment proof" style="width:100%;max-height:260px;object-fit:contain;border-radius:8px;border:1px solid var(--line);margin:10px 0;background:#fff"></a>' : '<div class="empty" style="padding:18px">No screenshot uploaded</div>') +
+            '<div class="field" style="margin:8px 0"><label>Reject reason</label><input id="rej-' + o.paymentId + '" placeholder="Required only when rejecting"></div>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm green" onclick="verifyPay(\'' + o.paymentId + '\')">Confirm</button><button class="btn sm ghost" onclick="rejectPay(\'' + o.paymentId + '\')">Reject</button></div></div>').join("") + '</div>' :
             '<div class="empty"><div class="em">All payments verified.</div></div>') + '</section>';
 }
 
@@ -69,6 +74,20 @@ async function verifyPay(paymentId) {
         toast("Payment verified", "Order released to kitchen");
     } catch (e) {
         toast("Verification failed", e.message, "chili");
+    }
+}
+
+async function rejectPay(paymentId) {
+    const reason = (document.getElementById("rej-" + paymentId).value || "").trim();
+    if (!reason) { toast("Reason required", "Tell the student why the proof was rejected", "chili"); return; }
+    try {
+        await apiJson("/api/payments/" + paymentId + "/verify", "PUT", { status: "REJECTED", rejectedReason: reason }, true);
+        await syncFromApi();
+        save();
+        mount();
+        toast("Payment rejected", "Student can re-upload proof");
+    } catch (e) {
+        toast("Rejection failed", e.message, "chili");
     }
 }
 
