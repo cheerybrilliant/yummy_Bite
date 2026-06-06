@@ -1,21 +1,42 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-// POST /api/reviews — Student submits a review after order is collected
-export const createReview = async (req: Request, res: Response): Promise<void> => {
+export const createReview = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { studentId, orderId, dishId, rating, comment } = req.body;
+    const studentId = req.user!.id;
+    const { orderId, dishId, rating, comment } = req.body as {
+      orderId: string;
+      dishId: string;
+      rating: number;
+      comment?: string;
+    };
 
-    // Validate rating is between 1 and 5
     if (rating < 1 || rating > 5) {
       res.status(400).json({ message: 'Rating must be between 1 and 5' });
       return;
     }
 
-    // Check if student already reviewed this order
-    const existing = await prisma.review.findUnique({ where: { orderId } });
-    if (existing) {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!order || order.studentId !== studentId) {
+      res.status(403).json({ message: 'Invalid order for review' });
+      return;
+    }
+
+    const alreadyReviewed = await prisma.review.findFirst({ where: { orderId } });
+    if (alreadyReviewed) {
       res.status(400).json({ message: 'You have already reviewed this order' });
+      return;
+    }
+
+    const orderedDish = order.items.some((item) => item.dishId === dishId);
+    if (!orderedDish) {
+      res.status(400).json({ message: 'Dish was not part of this order' });
       return;
     }
 
@@ -29,10 +50,9 @@ export const createReview = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// GET /api/reviews/dish/:dishId — Get all reviews for a dish
-export const getReviewsByDish = async (req: Request, res: Response): Promise<void> => {
+export const getReviewsByDish = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
- const dishId = parseInt(req.params.dishId as string);
+    const dishId = req.params.dishId as string;
 
     const reviews = await prisma.review.findMany({
       where: { dishId },
@@ -46,12 +66,11 @@ export const getReviewsByDish = async (req: Request, res: Response): Promise<voi
   }
 };
 
-// GET /api/reviews/order/:orderId — Get review for a specific order
-export const getReviewByOrder = async (req: Request, res: Response): Promise<void> => {
+export const getReviewByOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const orderId = parseInt(req.params.orderId as string);
+    const orderId = req.params.orderId as string;
 
-    const review = await prisma.review.findUnique({
+    const review = await prisma.review.findFirst({
       where: { orderId },
       include: { student: { select: { id: true, name: true } } },
     });

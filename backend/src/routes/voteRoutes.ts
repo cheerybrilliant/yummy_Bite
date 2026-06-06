@@ -1,27 +1,14 @@
 import { Router } from 'express';
-import {
-  createBallot,
-  getCurrentBallot,
-  submitVote,
-  getVoteResults,
-  confirmMenu,
-} from '../controllers/voteController';
+
+import { confirmMenu, createBallot, getCurrentBallot, getVoteResults, submitVote } from '../controllers/voteController';
+import { protect, restrictTo } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// POST /api/votes/ballot — Admin creates a new ballot
-router.post('/ballot', createBallot);
-
-// GET /api/votes/ballot — Students fetch current open ballot
+router.post('/ballot', protect, restrictTo('ADMIN'), createBallot);
 router.get('/ballot', getCurrentBallot);
-
-// POST /api/votes — Student submits votes
-router.post('/', submitVote);
-
-// GET /api/votes/results — Admin sees ranked results
-router.get('/results', getVoteResults);
-
-// PUT /api/votes/confirm — Admin confirms next week's menu
-router.put('/confirm', confirmMenu);
+router.post('/', protect, restrictTo('STUDENT'), submitVote);
+router.get('/results', protect, restrictTo('STAFF', 'ADMIN'), getVoteResults);
+router.put('/confirm', protect, restrictTo('ADMIN'), confirmMenu);
 
 export default router;

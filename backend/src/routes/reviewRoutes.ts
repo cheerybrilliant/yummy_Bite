@@ -1,19 +1,12 @@
 import { Router } from 'express';
-import {
-  createReview,
-  getReviewsByDish,
-  getReviewByOrder,
-} from '../controllers/reviewController';
+
+import { createReview, getReviewByOrder, getReviewsByDish } from '../controllers/reviewController';
+import { protect, restrictTo } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// POST /api/reviews
-router.post('/', createReview);
-
-// GET /api/reviews/dish/:dishId
+router.post('/', protect, restrictTo('STUDENT'), createReview);
 router.get('/dish/:dishId', getReviewsByDish);
-
-// GET /api/reviews/order/:orderId
-router.get('/order/:orderId', getReviewByOrder);
+router.get('/order/:orderId', protect, getReviewByOrder);
 
 export default router;
