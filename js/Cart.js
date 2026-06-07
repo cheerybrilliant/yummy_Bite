@@ -1,29 +1,42 @@
-/* cart.js — cart page + add/change operations */
-function renderCart() {
-    const ids = Object.keys(S.cart);
-    if (!ids.length) return '<section class="view">' + studentSubnav('cart') + '<div class="empty"><div class="em">🛒</div><h2 style="font-family:var(--disp)">Your cart is empty</h2><button class="btn" style="margin-top:14px" onclick="nav(\'menu\')">Browse the menu</button></div></section>';
-    return '<section class="view">' + studentSubnav('cart') + '<button class="chip" onclick="nav(\'menu\')">← Keep ordering</button>' +
-        '<h1 class="title" style="margin-top:14px">Your basket</h1>' +
-        '<div class="grid-2" style="align-items:start;margin-top:10px"><div class="card" style="padding:6px 22px 18px">' +
-        ids.map(id => {
-            const m = S.menu.find(x => x.id === id);
-            const q = S.cart[id];
-            return '<div class="line-item"><span class="em">🍽️</span>' +
-                '<div style="flex:1"><b>' + m.name + '</b><div class="money" style="color:var(--ink-soft);font-size:.85rem">' + fmt(m.price) + '</div></div>' +
-                '<div class="qty"><button onclick="chgQty(\'' + id + '\',-1)">–</button><b>' + q + '</b><button onclick="chgQty(\'' + id + '\',1)">+</button></div></div>'
-        }).join("") + '</div>' +
-        '<div class="card" style="padding:22px;position:sticky;top:90px"><h3 style="font-family:var(--disp);font-size:1.4rem;margin-bottom:10px">Summary</h3>' +
-        '<div class="summary"><span>Subtotal</span><span class="money">' + fmt(cartTotal()) + '</span></div>' +
-        '<div class="summary"><span>Service fee</span><span class="money">' + fmt(100) + '</span></div>' +
-        '<div class="summary total"><span>Total</span><span class="money">' + fmt(cartTotal() + 100) + '</span></div>' +
-        '<button class="btn" style="width:100%;margin-top:16px" onclick="nav(\'payment\')">Proceed to payment →</button></div></div></section>';
+﻿/* Cart page behavior. */
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("cartTableBody")) renderCartPage();
+});
+
+function renderCartPage() {
+    if (!App.requireRole("STUDENT")) return;
+    const body = document.getElementById("cartTableBody");
+    const empty = document.getElementById("cartEmpty");
+    const total = document.getElementById("cartTotal");
+    const checkout = document.getElementById("checkoutButton");
+    const items = Object.values(App.cart());
+    body.innerHTML = "";
+    empty.hidden = items.length > 0;
+    let sum = 0;
+    items.forEach(item => {
+        sum += Number(item.price) * Number(item.quantity);
+        const row = document.createElement("tr");
+        row.innerHTML = "<td>" + App.escape(item.name) + "</td><td>" + App.money(item.price) + "</td><td><input class='qty-input' type='number' min='1' value='" + item.quantity + "'></td><td>" + App.money(item.price * item.quantity) + "</td><td><button class='btn sm ghost' type='button'>Remove</button></td>";
+        row.querySelector("input").addEventListener("change", event => updateQuantity(item.id, Number(event.target.value || 1)));
+        row.querySelector("button").addEventListener("click", () => removeCartItem(item.id));
+        body.appendChild(row);
+    });
+    total.textContent = App.money(sum);
+    checkout.disabled = !items.length;
+    checkout.addEventListener("click", () => App.nav("payment"));
 }
 
-function addToCart(id) { S.cart[id] = (S.cart[id] || 0) + 1;
-    save();
-    mount(); const m = S.menu.find(x => x.id === id);
-    toast("Added to cart", m.name + ' · ' + fmt(m.price)); }
+function updateQuantity(id, quantity) {
+    const cart = App.cart();
+    if (!cart[id]) return;
+    cart[id].quantity = Math.max(1, quantity);
+    App.setCart(cart);
+    renderCartPage();
+}
 
-function chgQty(id, d) { S.cart[id] += d; if (S.cart[id] <= 0) delete S.cart[id];
-    save();
-    mount(); }
+function removeCartItem(id) {
+    const cart = App.cart();
+    delete cart[id];
+    App.setCart(cart);
+    renderCartPage();
+}
