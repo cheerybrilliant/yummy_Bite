@@ -7,6 +7,7 @@ exports.login = exports.createStaff = exports.register = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = __importDefault(require("../lib/prisma"));
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-change-this-secret';
 const register = async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
@@ -103,7 +104,7 @@ const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
-        const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
         res.json({
             message: 'Login successful',
             token,

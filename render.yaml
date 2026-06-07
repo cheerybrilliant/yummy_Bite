@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: yummy-bite
+    env: node
+    buildCommand: npm install && npm run render-build
+    startCommand: npm start
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: CANTEEN_MOMO_NUMBER
+        sync: false

@@ -18,7 +18,7 @@ const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
 const voteRoutes_1 = __importDefault(require("./routes/voteRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 const ROOT_DIR = process.cwd();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
