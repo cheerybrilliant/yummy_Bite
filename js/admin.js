@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("votingResultsPage")) loadVotingResults();
     if (document.getElementById("analyticsPage")) loadAnalytics();
     if (document.getElementById("manageCooksPage")) initManageCooks();
+    if (document.getElementById("settingsPage")) initSettingsPage();
 });
 
 async function allDishes() {
@@ -142,6 +143,58 @@ async function loadAnalytics() {
 function initManageCooks() {
     if (!App.requireRole("ADMIN")) return;
     document.getElementById("cookForm").addEventListener("submit", createCook);
+    loadCooksList();
+}
+
+async function loadCooksList() {
+    const body = document.getElementById("cooksTableBody");
+    try {
+        const staff = await App.apiJson("/api/auth/staff", "GET", null, true);
+        if (!staff.length) {
+            body.innerHTML = "<tr><td colspan='4'>No cooks yet.</td></tr>";
+            return;
+        }
+        body.innerHTML = staff.map(s => {
+            const staffId = s.email.replace("@ictuniversity.edu.cm", "");
+            return "<tr><td>" + App.escape(s.name) + "</td><td>" + App.escape(staffId) + "</td><td>" + App.escape(s.phone || "—") + "</td><td><button class='btn sm ghost' data-delete-cook='" + App.escape(s.id) + "'>Delete</button></td></tr>";
+        }).join("");
+        body.querySelectorAll("[data-delete-cook]").forEach(btn => {
+            btn.addEventListener("click", () => deleteCook(btn.dataset.deleteCook));
+        });
+    } catch (error) {
+        body.innerHTML = "<tr><td colspan='4'>Failed to load.</td></tr>";
+    }
+}
+
+async function deleteCook(id) {
+    if (!confirm("Delete this cook account?")) return;
+    try {
+        await App.apiJson("/api/auth/staff/" + id, "DELETE", null, true);
+        App.notice("Cook deleted", "Account removed");
+        loadCooksList();
+    } catch (error) {
+        App.notice("Delete failed", error.message, "error");
+    }
+}
+
+async function initSettingsPage() {
+    if (!App.requireRole("ADMIN")) return;
+    const settings = await App.apiJson("/api/settings");
+    document.getElementById("mtnInput").value = settings.mtn_number || "";
+    document.getElementById("orangeInput").value = settings.orange_number || "";
+    document.getElementById("settingsForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        try {
+            await App.apiJson("/api/settings", "PUT", {
+                mtn_number: form.mtn_number.value.trim(),
+                orange_number: form.orange_number.value.trim()
+            }, true);
+            App.notice("Settings saved", "Payment numbers updated");
+        } catch (error) {
+            App.notice("Save failed", error.message, "error");
+        }
+    });
 }
 
 async function createCook(event) {
@@ -157,6 +210,7 @@ async function createCook(event) {
         }, true);
         form.reset();
         App.notice("Cook created", "Staff can now log in");
+        loadCooksList();
     } catch (error) {
         App.notice("Cook creation failed", error.message, "error");
     }

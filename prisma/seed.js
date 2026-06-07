@@ -81,6 +81,9 @@ async function main() {
     });
   }
 
+  await prisma.setting.upsert({ where: { key: 'mtn_number' }, update: {}, create: { key: 'mtn_number', value: '670 000 000' } });
+  await prisma.setting.upsert({ where: { key: 'orange_number' }, update: {}, create: { key: 'orange_number', value: '690 000 000' } });
+
   const week = `${today.getFullYear()}-W${Math.ceil((((today - new Date(today.getFullYear(), 0, 1)) / 86400000) + 1) / 7)}`;
   await prisma.ballot.upsert({
     where: { week },

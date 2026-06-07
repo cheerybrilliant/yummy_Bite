@@ -9,7 +9,7 @@
     <script>
         window.PAGE = 'manageCooks';
         window.SECTION = 'admin';
-        window.PATHS = { home: '../Student/Home.html', menu: '../Student/Menu.html', about: '../Student/About page.html', login: '../Student/Login.html', register: '../Student/Register.html', cart: '../Student/Cart.html', payment: '../Student/Payment.htm', confirmation: '../Student/order.html', receipt: '../Student/Receipt.htm', tracking: '../Student/Order tracking.html', review: '../Student/Review.html', voting: '../Student/Voting.html', staffLogin: '../Staff/Staff-login.html', dashboard: '../Staff/Staff-dashboard.html', paymentVerification: '../Staff/Payment verification.html', adminMenu: 'Menu-management.html', dailyMenu: 'Daily-menu.html', votingResults: 'Voting-results.html', analytics: 'Analytics.html', manageCooks: 'Manage-cooks.html' };
+        window.PATHS = { home: '../Student/Home.html', menu: '../Student/Menu.html', about: '../Student/About page.html', login: '../Student/Login.html', register: '../Student/Register.html', cart: '../Student/Cart.html', payment: '../Student/Payment.htm', confirmation: '../Student/order.html', receipt: '../Student/Receipt.htm', tracking: '../Student/Order tracking.html', review: '../Student/Review.html', voting: '../Student/Voting.html', staffLogin: '../Staff/Staff-login.html', dashboard: '../Staff/Staff-dashboard.html', paymentVerification: '../Staff/Payment verification.html', adminMenu: 'Menu-management.html', dailyMenu: 'Daily-menu.html', votingResults: 'Voting-results.html', analytics: 'Analytics.html', manageCooks: 'Manage-cooks.html', settings: 'Settings.html' };
     </script>
 </head>
 <body>
@@ -34,13 +34,14 @@
 <a class="chip" href="Voting-results.html">Voting</a>
 <a class="chip" href="Analytics.html">Analytics</a>
 <a class="chip" href="Manage-cooks.html">Cooks</a>
+<a class="chip" href="Settings.html">Settings</a>
 </nav>
 <span class="eyebrow">Admin</span>
 <h1 class="title">Manage cooks</h1>
-<form class="card auth-card" id="cookForm">
+<form class="card auth-card" id="cookForm" autocomplete="off">
 <label>Full name<input name="name" required>
 </label>
-<label>Staff ID<input name="staffId" placeholder="cook-01" required>
+<label>Staff ID<input name="staffId" placeholder="cook-02" required>
 </label>
 <label>Phone<input name="phone">
 </label>
@@ -48,6 +49,11 @@
 </label>
 <button class="btn green" type="submit">Create cook account</button>
 </form>
+<h2 class="title" style="font-size:1.4rem;margin-top:2rem">Existing cooks</h2>
+<table class="data-table" id="cooksTable">
+<thead><tr><th>Name</th><th>Staff ID / Email</th><th>Phone</th><th></th></tr></thead>
+<tbody id="cooksTableBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
 </section>
     </main>
     <script src="../js/Store.js">

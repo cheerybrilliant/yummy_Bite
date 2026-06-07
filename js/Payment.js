@@ -5,7 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function initPaymentPage() {
     if (!App.requireRole("STUDENT")) return;
-    document.querySelectorAll("[data-momo-number]").forEach(el => { el.textContent = App.MOMO_NUMBER; });
+    App.apiJson("/api/settings").then(s => {
+        const mtn = document.getElementById("mtnNumber");
+        const orange = document.getElementById("orangeNumber");
+        if (mtn) mtn.textContent = s.mtn_number || "Not set";
+        if (orange) orange.textContent = s.orange_number || "Not set";
+    });
     document.getElementById("generateOrderButton").addEventListener("click", generateOrderForPayment);
     document.getElementById("paymentProofForm").addEventListener("submit", submitPaymentProof);
     await renderPaymentSummary();

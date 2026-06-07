@@ -4,7 +4,8 @@ const App = (() => {
     const CART_KEY = "yummy_bite_cart";
     const ACTIVE_ORDER_KEY = "yummy_bite_active_order";
     const PENDING_PAYMENT_KEY = "yummy_bite_pending_payment";
-    const API_BASE = window.API_BASE || (location.protocol === "file:" ? "http://localhost:5050" : location.origin);
+    const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    const API_BASE = window.API_BASE || (location.protocol === "file:" || isLocalhost ? "http://localhost:5050" : location.origin);
     const MOMO_NUMBER = window.CANTEEN_MOMO_NUMBER || "6 70 00 00 00";
 
     const paths = window.PATHS || {
@@ -25,7 +26,8 @@ const App = (() => {
         dailyMenu: "Admin/Daily-menu.html",
         votingResults: "Admin/Voting-results.html",
         analytics: "Admin/Analytics.html",
-        manageCooks: "Admin/Manage-cooks.html"
+        manageCooks: "Admin/Manage-cooks.html",
+        settings: "Admin/Settings.html"
     };
 
     function read(key, fallback) {

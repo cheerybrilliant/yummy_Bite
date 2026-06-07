@@ -127,3 +127,29 @@ const login = async (req, res) => {
     }
 };
 exports.login = login;
+const listStaff = async (req, res) => {
+    try {
+        const staff = await prisma_1.default.user.findMany({
+            where: { role: 'STAFF' },
+            select: { id: true, name: true, email: true, phone: true, createdAt: true }
+        });
+        res.json(staff);
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong', error });
+    }
+};
+exports.listStaff = listStaff;
+const deleteStaff = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await prisma_1.default.user.findUnique({ where: { id } });
+        if (!user || user.role !== 'STAFF') {
+            return res.status(404).json({ message: 'Staff member not found' });
+        }
+        await prisma_1.default.user.delete({ where: { id } });
+        res.json({ message: 'Staff member deleted' });
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong', error });
+    }
+};
+exports.deleteStaff = deleteStaff;

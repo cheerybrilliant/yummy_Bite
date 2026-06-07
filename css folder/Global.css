@@ -1,5 +1,7 @@
 ﻿/* ICT University Cameroon - Online Canteen global styles */
 
+[hidden] { display: none !important; }
+
 :root {
     --paper: #f4e9d6;
     --paper-2: #fbf4e7;

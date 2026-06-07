@@ -147,3 +147,8 @@ model TransactionLog {
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
+
+model Setting {
+  key   String @id
+  value String @default("")
+}

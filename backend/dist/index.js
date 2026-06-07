@@ -16,6 +16,7 @@ const paymentRoutes_1 = __importDefault(require("./routes/paymentRoutes"));
 const receiptRoutes_1 = __importDefault(require("./routes/receiptRoutes"));
 const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
 const voteRoutes_1 = __importDefault(require("./routes/voteRoutes"));
+const settingsRoutes_1 = __importDefault(require("./routes/settingsRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5050;
@@ -38,6 +39,7 @@ app.use('/api/payments', paymentRoutes_1.default);
 app.use('/api/receipts', receiptRoutes_1.default);
 app.use('/api/reviews', reviewRoutes_1.default);
 app.use('/api/votes', voteRoutes_1.default);
+app.use('/api/settings', settingsRoutes_1.default);
 async function main() {
     try {
         await prisma_1.default.$connect();
