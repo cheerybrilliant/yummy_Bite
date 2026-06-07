@@ -22,7 +22,7 @@
     <header class="topbar">
         <div class="wrap">
             <a class="brand" href="Home.html">
-<span class="dot">YB</span>
+<span class="logo-slot"><img class="school-logo" src="../assets/school-logo.png" alt="The ICT University logo" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="dot" hidden>YB</span></span>
 <span>ICTU Canteen<small>The ICT University</small>
 </span>
 </a>
@@ -33,33 +33,81 @@
     <div id="notice" class="notice" hidden>
 </div>
     <main class="wrap">
-        <section class="view landing" id="homeStats">
+        <section class="view" id="homeStats">
             <nav class="subnav">
-<a class="chip on" href="Home.html">Home</a>
-<a class="chip" href="Menu.html">Menu</a>
-<a class="chip" href="About page.html">About</a>
-</nav>
-            <span class="eyebrow">The ICT University</span>
-            <h1 class="title">The campus canteen, now online.</h1>
-            <p class="sub">Browse meals, place orders, upload payment proof, and collect your food when the kitchen marks it ready.</p>
-            <div class="cta">
-<a class="btn" href="Menu.html">See the menu</a>
-<a class="btn ghost" href="Register.html">Create account</a>
-</div>
+                <a class="chip on" href="Home.html">Home</a>
+                <a class="chip" href="Menu.html">Menu</a>
+                <a class="chip" href="About page.html">About</a>
+            </nav>
+
+            <section class="home-hero">
+                <span class="eyebrow">The ICT University</span>
+                <h1 class="title">ICTU Online Canteen</h1>
+                <p class="sub">
+                    ICTU Online Canteen helps students order food before reaching the canteen.
+                    Students choose meals, upload Mobile Money payment proof, track preparation,
+                    and collect when the kitchen marks the order ready.
+                </p>
+                <div class="cta">
+                    <a class="btn" href="Menu.html">View today's menu</a>
+                    <a class="btn ghost" href="Register.html">Create student account</a>
+                </div>
+            </section>
+
             <section class="grid-3 metrics-row">
-<article class="card stat">
-<div class="n" id="homeDishCount">0</div>
-<div class="l">Dishes in database</div>
-</article>
-<article class="card stat">
-<div class="n" id="homeTodayCount">0</div>
-<div class="l">Available today</div>
-</article>
-<article class="card stat">
-<div class="n">MoMo</div>
-<div class="l">Manual proof upload</div>
-</article>
-</section>
+                <article class="card stat">
+                    <div class="n" id="homeDishCount">0</div>
+                    <div class="l">Dishes in database</div>
+                </article>
+                <article class="card stat">
+                    <div class="n" id="homeTodayCount">0</div>
+                    <div class="l">Available today</div>
+                </article>
+                <article class="card stat">
+                    <div class="n">MoMo</div>
+                    <div class="l">Manual payment proof</div>
+                </article>
+            </section>
+
+            <section class="service-section">
+                <h2 class="sect">What the service does</h2>
+                <div class="service-grid">
+                    <article class="card service-card">
+                        <h3>Browse meals</h3>
+                        <p>Students view the daily menu, prices, stock, and meal details from the database.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Order online</h3>
+                        <p>Students add food to the cart and generate an Order ID before payment.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Upload proof</h3>
+                        <p>Students pay the canteen MoMo number on their phone, then upload screenshot proof and transaction ID.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Track pickup</h3>
+                        <p>The kitchen verifies payment, prepares food, marks it ready, and students confirm collection.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="service-section">
+                <h2 class="sect">Who uses it</h2>
+                <div class="grid-3">
+                    <article class="card service-card">
+                        <h3>Students</h3>
+                        <p>Create an account, order meals, upload payment proof, track status, vote weekly, and review food.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Cooks</h3>
+                        <p>Verify payments, move orders through preparation, mark meals ready, and approve meal suggestions.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Admins</h3>
+                        <p>Manage dishes, upload meal images, publish the daily menu, create cooks, and check analytics.</p>
+                    </article>
+                </div>
+            </section>
         </section>
     </main>
     <script src="../js/Store.js">
@@ -80,4 +128,5 @@
 </script>
 </body>
 </html>
+
 

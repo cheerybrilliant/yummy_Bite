@@ -22,7 +22,7 @@
     <header class="topbar">
         <div class="wrap">
             <a class="brand" href="Home.html">
-<span class="dot">YB</span>
+<span class="logo-slot"><img class="school-logo" src="../assets/school-logo.png" alt="The ICT University logo" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="dot" hidden>YB</span></span>
 <span>ICTU Canteen<small>The ICT University</small>
 </span>
 </a>
@@ -41,8 +41,25 @@
 </nav>
 <span class="eyebrow">Sign in</span>
 <h1 class="title">Login to your account</h1>
-<p class="sub">Use the account created for your role. Students, cooks, and admins do not share passwords.</p>
-<div class="grid-3 auth-grid">
+<p class="sub">Choose your role first. The correct login form will appear after you select Student, Cook, or Admin.</p>
+
+<div class="role-choice-grid" id="roleChoiceGrid">
+<button class="role-card" type="button" data-role-choice="student">
+<h3>Student</h3>
+<p>Order meals, upload payment proof, track pickup, vote weekly, and review food.</p>
+</button>
+<button class="role-card" type="button" data-role-choice="cook">
+<h3>Cook</h3>
+<p>Verify payment, prepare orders, mark food ready, and approve meal suggestions.</p>
+</button>
+<button class="role-card" type="button" data-role-choice="admin">
+<h3>Admin</h3>
+<p>Manage the menu, daily stock, cooks, voting results, and analytics.</p>
+</button>
+</div>
+
+<div class="role-panel" id="studentPanel" hidden>
+<button class="chip" type="button" data-back-roles>Back to roles</button>
 <form class="card auth-card" id="studentLoginForm">
 <h2>Student</h2>
 <label>Email<input name="email" type="email" required>
@@ -51,6 +68,10 @@
 </label>
 <button class="btn" type="submit">Student login</button>
 </form>
+</div>
+
+<div class="role-panel" id="cookPanel" hidden>
+<button class="chip" type="button" data-back-roles>Back to roles</button>
 <form class="card auth-card" id="staffLoginForm">
 <h2>Cook</h2>
 <label>Staff ID or email<input name="staffId" required>
@@ -60,6 +81,10 @@
 </label>
 <button class="btn green" type="submit">Cook login</button>
 </form>
+</div>
+
+<div class="role-panel" id="adminPanel" hidden>
+<button class="chip" type="button" data-back-roles>Back to roles</button>
 <form class="card auth-card" id="adminLoginForm">
 <h2>Admin</h2>
 <label>Email<input name="email" type="email" required>
@@ -89,4 +114,5 @@
 </script>
 </body>
 </html>
+
 
