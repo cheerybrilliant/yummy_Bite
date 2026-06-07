@@ -1,0 +1,9 @@
+/* student.css — student-portal accents (global.css holds the shared system) */
+
+:root {
+    --portal: #d6451f;
+}
+
+.subnav .chip.on {
+    box-shadow: 0 2px 0 rgba(168, 50, 15, .35);
+}

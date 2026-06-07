@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const dishController_1 = require("../controllers/dishController");
+const authMiddleware_1 = require("../middleware/authMiddleware");
+const router = (0, express_1.Router)();
+router.post('/', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STAFF', 'ADMIN'), dishController_1.createDish);
+router.get('/', dishController_1.getAllDishes);
+router.put('/:id', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STAFF', 'ADMIN'), dishController_1.updateDish);
+router.delete('/:id', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('ADMIN'), dishController_1.deleteDish);
+exports.default = router;

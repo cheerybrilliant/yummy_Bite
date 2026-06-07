@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const voteController_1 = require("../controllers/voteController");
+const authMiddleware_1 = require("../middleware/authMiddleware");
+const router = (0, express_1.Router)();
+router.post('/ballot', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('ADMIN'), voteController_1.createBallot);
+router.get('/ballot', voteController_1.getCurrentBallot);
+router.post('/suggestions', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STUDENT'), voteController_1.createSuggestion);
+router.get('/suggestions', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STAFF', 'ADMIN'), voteController_1.getSuggestions);
+router.put('/suggestions/:id/review', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STAFF', 'ADMIN'), voteController_1.reviewSuggestion);
+router.post('/', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STUDENT'), voteController_1.submitVote);
+router.get('/results', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('STAFF', 'ADMIN'), voteController_1.getVoteResults);
+router.put('/confirm', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('ADMIN'), voteController_1.confirmMenu);
+exports.default = router;
