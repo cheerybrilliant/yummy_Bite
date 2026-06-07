@@ -41,11 +41,11 @@ function showRoleChoices() {
 async function login(event, expectedRole, destination) {
     event.preventDefault();
     const form = event.currentTarget;
-    let email = form.email.value.trim();
+    let email = form.email.value.trim().toLowerCase();
     const password = form.password.value.trim();
     if (form.staffId && !email) {
         const staffId = form.staffId.value.trim();
-        email = staffId.includes("@") ? staffId : staffId + "@ictuniversity.edu.cm";
+        email = (staffId.includes("@") ? staffId : staffId + "@ictuniversity.edu.cm").toLowerCase();
     }
     if (!email || !password) {
         App.notice("Missing details", "Email and password are required", "error");
@@ -66,7 +66,7 @@ async function signup(event) {
     const form = event.currentTarget;
     const payload = {
         name: form.name.value.trim(),
-        email: form.email.value.trim(),
+        email: form.email.value.trim().toLowerCase(),
         phone: form.phone.value.trim(),
         password: form.password.value.trim()
     };

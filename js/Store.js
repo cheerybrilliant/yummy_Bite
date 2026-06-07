@@ -96,10 +96,26 @@ const App = (() => {
     }
 
     async function api(pathName, options = {}) {
-        const response = await fetch(API_BASE + pathName, options);
+        let response;
+        try {
+            response = await fetch(API_BASE + pathName, options);
+        } catch (error) {
+            throw new Error("Cannot reach the backend at " + API_BASE + ". Start the server with npm start and open http://localhost:5050.");
+        }
+
         const text = await response.text();
-        const data = text ? JSON.parse(text) : null;
-        if (!response.ok) throw new Error((data && data.message) || "Request failed");
+        let data = null;
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch (error) {
+                throw new Error("Backend returned an invalid response. Open the site through http://localhost:5050, not directly from the file system.");
+            }
+        }
+
+        if (!response.ok) {
+            throw new Error((data && data.message) || ("Request failed with status " + response.status));
+        }
         return data;
     }
 

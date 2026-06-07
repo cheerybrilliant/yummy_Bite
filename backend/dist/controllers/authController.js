@@ -11,14 +11,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-change-this-secret';
 const register = async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
+        const rawEmail = String(email || '').trim();
+        const normalizedEmail = rawEmail.toLowerCase();
         if (!name || !email || !password) {
             return res.status(400).json({ message: 'Name, email and password are required' });
         }
         if (String(password).length < 6) {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
-        const existingUser = await prisma_1.default.user.findUnique({
-            where: { email },
+        const existingUser = await prisma_1.default.user.findFirst({
+            where: { OR: [{ email: normalizedEmail }, { email: rawEmail }] },
         });
         if (existingUser) {
             return res.status(400).json({ message: 'Email already registered' });
@@ -26,10 +28,10 @@ const register = async (req, res) => {
         const hashedPassword = await bcryptjs_1.default.hash(password, 10);
         const user = await prisma_1.default.user.create({
             data: {
-                name,
-                email,
+                name: String(name).trim(),
+                email: normalizedEmail,
                 password: hashedPassword,
-                phone: phone || '',
+                phone: String(phone || '').trim(),
                 role: 'STUDENT',
             },
         });
@@ -51,14 +53,16 @@ exports.register = register;
 const createStaff = async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
+        const rawEmail = String(email || '').trim();
+        const normalizedEmail = rawEmail.toLowerCase();
         if (!name || !email || !password) {
             return res.status(400).json({ message: 'Name, email and password are required' });
         }
         if (String(password).length < 6) {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
-        const existingUser = await prisma_1.default.user.findUnique({
-            where: { email },
+        const existingUser = await prisma_1.default.user.findFirst({
+            where: { OR: [{ email: normalizedEmail }, { email: rawEmail }] },
         });
         if (existingUser) {
             return res.status(400).json({ message: 'Email already registered' });
@@ -66,10 +70,10 @@ const createStaff = async (req, res) => {
         const hashedPassword = await bcryptjs_1.default.hash(password, 10);
         const user = await prisma_1.default.user.create({
             data: {
-                name,
-                email,
+                name: String(name).trim(),
+                email: normalizedEmail,
                 password: hashedPassword,
-                phone: phone || '',
+                phone: String(phone || '').trim(),
                 role: 'STAFF',
             },
         });
@@ -91,11 +95,13 @@ exports.createStaff = createStaff;
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        const rawEmail = String(email || '').trim();
+        const normalizedEmail = rawEmail.toLowerCase();
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
-        const user = await prisma_1.default.user.findUnique({
-            where: { email },
+        const user = await prisma_1.default.user.findFirst({
+            where: { OR: [{ email: normalizedEmail }, { email: rawEmail }] },
         });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
