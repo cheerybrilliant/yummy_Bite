@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -27,10 +27,10 @@ model User {
 model Dish {
   id          String   @id @default(uuid())
   name        String   @unique
-  description String   @default("")
+  description String   @default("") @db.Text
   price       Float
   category    String
-  image       String   @default("")
+  image       String   @default("") @db.LongText
   createdAt   DateTime @default(now())
 
   dailyMenus DailyMenu[]
@@ -78,7 +78,7 @@ model Payment {
   screenshot     String
   transactionId  String
   status         String   @default("PENDING")
-  rejectedReason String?
+  rejectedReason String?       @db.Text
   createdAt      DateTime      @default(now())
   orderId        String        @unique
   order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -94,7 +94,7 @@ model Receipt {
 model Review {
   id        String   @id @default(uuid())
   rating    Int
-  comment   String?
+  comment   String?  @db.Text
   createdAt DateTime @default(now())
   studentId String
   orderId   String
@@ -125,10 +125,10 @@ model Ballot {
 model MealSuggestion {
   id            String   @id @default(uuid())
   name          String
-  description   String   @default("")
+  description   String   @default("") @db.Text
   week          String
   status        String   @default("PENDING")
-  staffNote     String   @default("")
+  staffNote     String   @default("") @db.Text
   createdAt     DateTime @default(now())
   reviewedAt    DateTime?
   suggestedById String
@@ -142,7 +142,7 @@ model TransactionLog {
   orderId   String
   userId    String?
   action    String
-  note      String   @default("")
+  note      String   @default("") @db.Text
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -150,5 +150,5 @@ model TransactionLog {
 
 model Setting {
   key   String @id
-  value String @default("")
+  value String @default("") @db.LongText
 }

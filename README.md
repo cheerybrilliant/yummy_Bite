@@ -28,9 +28,13 @@ The single Prisma schema used by the app is:
 prisma/schema.prisma
 ```
 
-`prisma/dev.db` is a local SQLite runtime database and is ignored by Git.
+The app now expects a MySQL database URL:
 
-For MySQL Workbench, use:
+```text
+mysql://USERNAME:PASSWORD@HOST:3306/yummy_bite
+```
+
+You can manage that database from MySQL Workbench. A matching SQL reference schema is available at:
 
 ```text
 database/mysql-workbench-schema.sql
@@ -60,8 +64,8 @@ JWT_SECRET
 CANTEEN_MOMO_NUMBER
 ```
 
-If you use SQLite on Render, attach a persistent disk and set `DATABASE_URL` to a disk path such as:
+For MySQL, set `DATABASE_URL` to your hosted MySQL connection string, for example:
 
 ```text
-file:/var/data/yummy-bite.db
+mysql://USERNAME:PASSWORD@HOST:3306/yummy_bite
 ```
