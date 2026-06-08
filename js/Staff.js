@@ -1,104 +1,106 @@
-/* staff.js - kitchen board and payment verification */
-function renderDashboard() {
-    const cols = { received: [], preparing: [], ready: [] };
-    S.orders.forEach(o => { if (cols[o.status]) cols[o.status].push(o); });
-    const ready = S.orders.filter(o => o.status === "ready").length;
-    return '<section class="view">' + staffSubnav('dashboard') + '<span class="eyebrow">Kitchen Dashboard</span><h1 class="title">Cook station</h1>' +
-        '<p class="sub">Live tickets from students. Advance each order as you cook, and upload today\'s meals.</p>' +
-        '<div class="grid-3" style="margin-bottom:18px">' +
-        '<div class="card stat locked-stat"><div class="n">' + fmt(salesTotal()) + '</div><div class="l">Sales today</div></div>' +
-        '<div class="card stat"><div class="n">' + S.orders.filter(o => o.status !== 'collected').length + '</div><div class="l">Active tickets</div></div>' +
-        '<div class="card stat"><div class="n">' + ready + '</div><div class="l">Ready for pickup</div></div></div>' +
-        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"><button class="btn sm" onclick="mealForm(\'\')">+ Upload today\'s meal</button>' +
-        '<button class="btn sm ghost" onclick="nav(\'paymentVerification\')">Verify payments</button></div>' +
-        renderSuggestionApprovals() +
-        '<div class="board">' + ["received", "preparing", "ready"].map(st => '<div class="col"><h3>' + STATUS_LBL[st] + ' <span class="count">' + cols[st].length + '</span></h3>' +
-            (cols[st].length ? cols[st].map(o => kCard(o, st)).join("") : '<div class="empty" style="padding:24px"><div class="em">No tickets</div></div>') + '</div>').join("") + '</div></section>';
+﻿/* Staff dashboard and payment verification behavior. */
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("staffDashboardPage")) loadStaffDashboard();
+    if (document.getElementById("paymentVerificationPage")) loadPaymentVerification();
+});
+
+async function staffOrders() {
+    return App.api("/api/orders", { headers: App.authHeaders() });
 }
 
-function renderSuggestionApprovals() {
-    const pending = S.suggestions || [];
-    if (!pending.length) {
-        return '<div class="card" style="padding:18px;margin-bottom:18px"><b>Weekly suggestions</b><div style="color:var(--ink-soft);font-size:.9rem;margin-top:4px">No pending meal suggestions.</div></div>';
+async function loadStaffDashboard() {
+    if (!App.requireAnyRole(["STAFF", "ADMIN"])) return;
+    const orders = await staffOrders();
+    document.getElementById("activeTicketCount").textContent = orders.filter(order => order.status !== "COMPLETED").length;
+    document.getElementById("readyTicketCount").textContent = orders.filter(order => order.status === "READY_FOR_COLLECTION").length;
+    drawOrderColumn("confirmedOrders", orders.filter(order => order.status === "PAYMENT_CONFIRMED"), "Start cooking", "PREPARING");
+    drawOrderColumn("preparingOrders", orders.filter(order => order.status === "PREPARING"), "Mark ready", "READY_FOR_COLLECTION");
+    drawOrderColumn("readyOrders", orders.filter(order => order.status === "READY_FOR_COLLECTION"), "Waiting for student", "");
+    await loadSuggestionApprovals();
+}
+
+function drawOrderColumn(id, orders, label, nextStatus) {
+    const target = document.getElementById(id);
+    target.innerHTML = "";
+    if (!orders.length) {
+        target.innerHTML = "<li class='empty-list'>No tickets</li>";
+        return;
     }
-    return '<div class="card" style="padding:18px;margin-bottom:18px"><b>Weekly meal suggestions to approve</b>' +
-        pending.map(s => '<div class="line-item"><div style="flex:1"><b>' + s.name + '</b><div style="color:var(--ink-soft);font-size:.85rem">' + (s.description || 'No description') + ' - ' + s.week + '</div></div>' +
-            '<button class="btn sm green" onclick="reviewSuggestion(\'' + s.id + '\',\'APPROVED\')">Can cook</button>' +
-            '<button class="btn sm ghost" onclick="reviewSuggestion(\'' + s.id + '\',\'REJECTED\')">Reject</button></div>').join("") + '</div>';
+    orders.forEach(order => {
+        const item = document.createElement("li");
+        item.className = "ticket-card";
+        item.innerHTML = "<strong>" + App.escape(order.id) + "</strong><span>" + App.escape(order.student.name) + "</span><small>" + order.items.map(row => row.quantity + " x " + App.escape(row.dish.name)).join(", ") + "</small>";
+        if (nextStatus) {
+            const button = document.createElement("button");
+            button.className = "btn sm";
+            button.type = "button";
+            button.textContent = label;
+            button.addEventListener("click", () => updateKitchenStatus(order.id, nextStatus));
+            item.appendChild(button);
+        }
+        target.appendChild(item);
+    });
 }
 
-function kCard(o, st) {
-    const next = st === "received" ? "preparing" : st === "preparing" ? "ready" : null;
-    const label = st === "received" ? "Start cooking" : st === "preparing" ? "Mark ready" : "";
-    const mins = Math.floor((Date.now() - o.time) / 60000);
-    return '<div class="kcard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="kid">' + o.id + '</span><small style="color:var(--ink-faint)">' + mins + 'm ago</small></div>' +
-        '<div style="font-size:.82rem;color:var(--ink-soft)">' + o.customer + ' - ' + o.method + (o.paid ? '' : ' - <b style="color:var(--chili)">UNVERIFIED</b>') + '</div>' +
-        '<ul>' + o.items.map(i => '<li><span>' + i.name + '</span><b>x' + i.qty + '</b></li>').join("") + '</ul>' +
-        (next ? '<button class="btn sm ' + (st === 'preparing' ? 'green' : 'dark') + '" style="width:100%" ' + (!o.paid ? 'disabled title="Verify payment first"' : '') + ' onclick="advance(\'' + o.id + '\')">' + label + '</button>' : '<div style="text-align:center;color:var(--herb);font-weight:800">Ready for pickup</div>') + '</div>';
-}
-
-async function advance(id) {
-    const o = S.orders.find(x => x.id === id);
-    if (!o) return;
+async function updateKitchenStatus(orderId, status) {
     try {
-        await apiJson("/api/orders/" + id + "/status", "PUT", { status: orderStatusToApi(o.status) }, true);
-        await syncFromApi();
-        save();
-        mount();
-        const updated = S.orders.find(x => x.id === id);
-        if (updated && updated.status === "ready") toast("Order ready", updated.customer + " can collect " + updated.id, "chili");
-    } catch (e) {
-        toast("Update failed", e.message, "chili");
+        await App.apiJson("/api/orders/" + orderId + "/status", "PUT", { status }, true);
+        App.notice("Order updated", App.statusText(status));
+        await loadStaffDashboard();
+    } catch (error) {
+        App.notice("Update failed", error.message, "error");
     }
 }
 
-function renderPaymentVerification() {
-    const pending = S.orders.filter(o => o.paymentId && o.paymentStatus === "PENDING");
-    return '<section class="view">' + staffSubnav('paymentVerification') + '<span class="eyebrow">Kitchen</span><h1 class="title">Payment verification</h1>' +
-        '<p class="sub">Check the screenshot, transaction ID, and amount before releasing the order to the kitchen.</p>' +
-        (pending.length ? '<div class="grid-2" style="align-items:start">' + pending.map(o => '<div class="card" style="padding:18px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b class="money">' + o.id + '</b><div style="color:var(--ink-soft);font-size:.85rem">' + o.customer + ' - ' + new Date(o.time).toLocaleString('en-GB') + '</div></div><span class="pill low">Pending</span></div>' +
-            '<div class="summary"><span>Amount</span><span class="money">' + fmt(o.total) + '</span></div>' +
-            '<div class="summary"><span>Transaction ID</span><span class="money">' + (o.transactionId || 'Missing') + '</span></div>' +
-            (o.screenshot ? '<a href="' + o.screenshot + '" target="_blank" rel="noopener"><img src="' + o.screenshot + '" alt="Payment proof" style="width:100%;max-height:260px;object-fit:contain;border-radius:8px;border:1px solid var(--line);margin:10px 0;background:#fff"></a>' : '<div class="empty" style="padding:18px">No screenshot uploaded</div>') +
-            '<div class="field" style="margin:8px 0"><label>Reject reason</label><input id="rej-' + o.paymentId + '" placeholder="Required only when rejecting"></div>' +
-            '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm green" onclick="verifyPay(\'' + o.paymentId + '\')">Confirm</button><button class="btn sm ghost" onclick="rejectPay(\'' + o.paymentId + '\')">Reject</button></div></div>').join("") + '</div>' :
-            '<div class="empty"><div class="em">All payments verified.</div></div>') + '</section>';
-}
-
-async function verifyPay(paymentId) {
-    try {
-        await apiJson("/api/payments/" + paymentId + "/verify", "PUT", { status: "VERIFIED" }, true);
-        await syncFromApi();
-        save();
-        mount();
-        toast("Payment verified", "Order released to kitchen");
-    } catch (e) {
-        toast("Verification failed", e.message, "chili");
-    }
-}
-
-async function rejectPay(paymentId) {
-    const reason = (document.getElementById("rej-" + paymentId).value || "").trim();
-    if (!reason) { toast("Reason required", "Tell the student why the proof was rejected", "chili"); return; }
-    try {
-        await apiJson("/api/payments/" + paymentId + "/verify", "PUT", { status: "REJECTED", rejectedReason: reason }, true);
-        await syncFromApi();
-        save();
-        mount();
-        toast("Payment rejected", "Student can re-upload proof");
-    } catch (e) {
-        toast("Rejection failed", e.message, "chili");
-    }
+async function loadSuggestionApprovals() {
+    const body = document.getElementById("suggestionsTableBody");
+    if (!body) return;
+    const result = await App.api("/api/votes/suggestions?status=PENDING", { headers: App.authHeaders() });
+    body.innerHTML = "";
+    (result.suggestions || []).forEach(suggestion => {
+        const row = document.createElement("tr");
+        row.innerHTML = "<td>" + App.escape(suggestion.name) + "</td><td>" + App.escape(suggestion.description || "") + "</td><td>" + App.escape(suggestion.week) + "</td><td><button class='btn sm green' type='button'>Can cook</button> <button class='btn sm ghost' type='button'>Reject</button></td>";
+        row.querySelector(".green").addEventListener("click", () => reviewSuggestion(suggestion.id, "APPROVED"));
+        row.querySelector(".ghost").addEventListener("click", () => reviewSuggestion(suggestion.id, "REJECTED"));
+        body.appendChild(row);
+    });
 }
 
 async function reviewSuggestion(id, status) {
     try {
-        await apiJson("/api/votes/suggestions/" + id + "/review", "PUT", { status }, true);
-        await syncFromApi();
-        save();
-        mount();
-        toast("Suggestion reviewed", status === "APPROVED" ? "Marked as cookable" : "Suggestion rejected");
-    } catch (e) {
-        toast("Review failed", e.message, "chili");
+        await App.apiJson("/api/votes/suggestions/" + id + "/review", "PUT", { status }, true);
+        App.notice("Suggestion reviewed", status === "APPROVED" ? "Marked as cookable" : "Rejected");
+        await loadStaffDashboard();
+    } catch (error) {
+        App.notice("Review failed", error.message, "error");
+    }
+}
+
+async function loadPaymentVerification() {
+    if (!App.requireAnyRole(["STAFF", "ADMIN"])) return;
+    const orders = await staffOrders();
+    const pending = orders.filter(order => order.payment && order.payment.status === "PENDING");
+    const body = document.getElementById("paymentVerificationBody");
+    const empty = document.getElementById("paymentVerificationEmpty");
+    body.innerHTML = "";
+    empty.hidden = pending.length > 0;
+    pending.forEach(order => {
+        const proofUrl = order.payment.screenshot ? App.API_BASE + "/" + order.payment.screenshot.replaceAll("\\", "/") : "";
+        const row = document.createElement("tr");
+        row.innerHTML = "<td>" + App.escape(order.id) + "</td><td>" + App.escape(order.student.name) + "</td><td>" + App.money(order.totalAmount) + "</td><td>" + App.escape(order.payment.transactionId) + "</td><td>" + (proofUrl ? "<a href='" + proofUrl + "' target='_blank'>Open screenshot</a>" : "No screenshot") + "</td><td><input class='reject-input' placeholder='Reason if rejected'></td><td><button class='btn sm green' type='button'>Confirm</button> <button class='btn sm ghost' type='button'>Reject</button></td>";
+        row.querySelector(".green").addEventListener("click", () => verifyPayment(order.payment.id, "VERIFIED", ""));
+        row.querySelector(".ghost").addEventListener("click", () => verifyPayment(order.payment.id, "REJECTED", row.querySelector("input").value.trim()));
+        body.appendChild(row);
+    });
+}
+
+async function verifyPayment(paymentId, status, rejectedReason) {
+    if (status === "REJECTED" && !rejectedReason) return App.notice("Reason required", "Enter why the payment proof is rejected", "error");
+    try {
+        await App.apiJson("/api/payments/" + paymentId + "/verify", "PUT", { status, rejectedReason }, true);
+        App.notice("Payment updated", status === "VERIFIED" ? "Order released to kitchen" : "Student can re-upload proof");
+        await loadPaymentVerification();
+    } catch (error) {
+        App.notice("Payment update failed", error.message, "error");
     }
 }

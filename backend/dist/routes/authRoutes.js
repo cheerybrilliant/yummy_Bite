@@ -7,4 +7,6 @@ const router = (0, express_1.Router)();
 router.post('/register', authController_1.register);
 router.post('/login', authController_1.login);
 router.post('/staff', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('ADMIN'), authController_1.createStaff);
+router.get('/staff', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('ADMIN'), authController_1.listStaff);
+router.delete('/staff/:id', authMiddleware_1.protect, (0, authMiddleware_1.restrictTo)('ADMIN'), authController_1.deleteStaff);
 exports.default = router;

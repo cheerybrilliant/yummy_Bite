@@ -5,11 +5,13 @@
   "main": "backend/dist/index.js",
   "scripts": {
     "start": "node backend/dist/index.js",
+    "build": "prisma generate",
     "dev": "nodemon backend/dist/index.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
-    "setup": "npm run db:generate && npm run db:push && npm run db:seed"
+    "setup": "npm run db:generate && npm run db:push && npm run db:seed",
+    "render-build": "npm run setup"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

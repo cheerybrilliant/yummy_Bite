@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Settings - ICTU Canteen</title>
+    <link rel="stylesheet" href="../css folder/Global.css">
+    <link rel="stylesheet" href="../css folder/Admin.css">
+    <script>
+        window.PAGE = 'settings';
+        window.SECTION = 'admin';
+        window.PATHS = { home: '../Student/Home.html', menu: '../Student/Menu.html', about: '../Student/About page.html', login: '../Student/Login.html', register: '../Student/Register.html', cart: '../Student/Cart.html', payment: '../Student/Payment.htm', confirmation: '../Student/order.html', receipt: '../Student/Receipt.htm', tracking: '../Student/Order tracking.html', review: '../Student/Review.html', voting: '../Student/Voting.html', staffLogin: '../Staff/Staff-login.html', dashboard: '../Staff/Staff-dashboard.html', paymentVerification: '../Staff/Payment verification.html', adminMenu: 'Menu-management.html', dailyMenu: 'Daily-menu.html', votingResults: 'Voting-results.html', analytics: 'Analytics.html', manageCooks: 'Manage-cooks.html', settings: 'Settings.html' };
+    </script>
+</head>
+<body>
+    <header class="topbar">
+        <div class="wrap">
+            <a class="brand" href="../Student/Home.html">
+                <span class="logo-slot"><img class="school-logo" src="../assets/school-logo.png" alt="The ICT University logo" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="dot" hidden>YB</span></span>
+                <span>ICTU Canteen<small>The ICT University</small></span>
+            </a>
+            <nav class="role-switch" id="roleSwitch"></nav>
+        </div>
+    </header>
+    <div id="notice" class="notice" hidden></div>
+    <main class="wrap">
+        <section class="view" id="settingsPage">
+            <nav class="subnav">
+                <a class="chip" href="Menu-management.html">Menu</a>
+                <a class="chip" href="Daily-menu.html">Daily menu</a>
+                <a class="chip" href="Voting-results.html">Voting</a>
+                <a class="chip" href="Analytics.html">Analytics</a>
+                <a class="chip" href="Manage-cooks.html">Cooks</a>
+                <a class="chip on" href="Settings.html">Settings</a>
+            </nav>
+            <span class="eyebrow">Admin</span>
+            <h1 class="title">Payment settings</h1>
+            <p class="sub">Set the mobile money numbers students send payments to. These are shown on the student payment page.</p>
+            <form class="card auth-card" id="settingsForm" autocomplete="off">
+                <label>MTN MoMo number<input id="mtnInput" name="mtn_number" placeholder="e.g. 670 000 000" required></label>
+                <label>Orange Money number<input id="orangeInput" name="orange_number" placeholder="e.g. 690 000 000" required></label>
+                <button class="btn" type="submit">Save numbers</button>
+            </form>
+        </section>
+    </main>
+    <script src="../js/Store.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/Menu.js"></script>
+    <script src="../js/Cart.js"></script>
+    <script src="../js/Payment.js"></script>
+    <script src="../js/Order.js"></script>
+    <script src="../js/Staff.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

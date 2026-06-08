@@ -1,63 +1,160 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ICT University Cameroon — Online Canteen</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Home - ICTU Canteen</title>
     <link rel="stylesheet" href="../css folder/Global.css">
     <link rel="stylesheet" href="../css folder/Student.css">
     <script>
         window.PAGE = 'home';
         window.SECTION = 'student';
         window.PATHS = {
-            home: 'Home.html',
-            menu: 'Menu.html',
-            about: 'About page.html',
-            login: 'Login.html',
-            register: 'Register.html',
-            cart: 'Cart.html',
-            payment: 'Payment.htm',
-            confirmation: 'order.html',
-            receipt: 'Receipt.htm',
-            tracking: 'Order tracking.html',
-            review: 'Review.html',
-            voting: 'Voting.html',
-            staffLogin: '../Staff/Staff-login.html',
-            dashboard: '../Staff/Staff-dashboard.html',
-            paymentVerification: '../Staff/Payment verification.html',
-            adminMenu: '../Admin/Menu-management.html',
-            dailyMenu: '../Admin/Daily-menu.html',
-            votingResults: '../Admin/Voting-results.html',
-            analytics: '../Admin/Analytics.html',
-            manageCooks: '../Admin/Manage-cooks.html'
+            home: 'Home.html', menu: 'Menu.html', about: 'About page.html', login: 'Login.html', register: 'Register.html',
+            cart: 'Cart.html', payment: 'Payment.htm', confirmation: 'order.html', receipt: 'Receipt.htm', tracking: 'Order tracking.html',
+            review: 'Review.html', voting: 'Voting.html', staffLogin: '../Staff/Staff-login.html', dashboard: '../Staff/Staff-dashboard.html',
+            paymentVerification: '../Staff/Payment verification.html', adminMenu: '../Admin/Menu-management.html', dailyMenu: '../Admin/Daily-menu.html',
+            votingResults: '../Admin/Voting-results.html', analytics: '../Admin/Analytics.html', manageCooks: '../Admin/Manage-cooks.html'
         };
     </script>
 </head>
-
 <body>
-    <div class="topbar">
+    <header class="topbar">
         <div class="wrap">
-            <div class="brand" onclick="nav('home')"><span class="dot" style="display:none">🍲</span><img class="brand-logo" src="https://ictuniversity.org/wp-content/uploads/2020/08/cropped-ict-u-logo-shield-small-270x270.png" alt="The ICT University" onerror="this.style.display='none';this.previousElementSibling.style.display='grid'">
-                <div>ICTU Canteen<small>The ICT University</small></div>
-            </div>
-            <div class="role-switch" id="roleSwitch"></div>
+            <a class="brand" href="Home.html">
+<span class="logo-slot"><img class="school-logo" src="../assets/school-logo.png" alt="The ICT University logo" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="dot" hidden>YB</span></span>
+<span>ICTU Canteen<small>The ICT University</small>
+</span>
+</a>
+            <nav class="role-switch" id="roleSwitch">
+</nav>
         </div>
-    </div>
-    <main id="app" class="wrap"></main>
-    <div id="toasts" class="toast-zone"></div>
-    <div id="modalRoot"></div>
-    <script src="../js/Store.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/Menu.js"></script>
-    <script src="../js/Cart.js"></script>
-    <script src="../js/Payment.js"></script>
-    <script src="../js/Order.js"></script>
-    <script src="../js/Staff.js"></script>
-    <script src="../js/admin.js"></script>
-</body>
+    </header>
+    <div id="notice" class="notice" hidden>
+</div>
+    <main class="wrap">
+        <section class="view" id="homeStats">
+            <nav class="subnav">
+                <a class="chip on" href="Home.html">Home</a>
+                <a class="chip" href="Menu.html">Menu</a>
+                <a class="chip" href="About page.html">About</a>
+            </nav>
 
+            <section class="home-hero">
+                <span class="eyebrow">The ICT University</span>
+                <h1 class="title">ICTU Online Canteen</h1>
+                <p class="sub">
+                    ICTU Online Canteen is a food order management system for campus meals.
+                    It helps students view available dishes, place orders, upload Mobile Money
+                    payment proof, track preparation, and collect meals when the kitchen marks
+                    them ready.
+                </p>
+                <div class="cta">
+                    <a class="btn" href="Menu.html">View today's menu</a>
+                    <a class="btn ghost" href="Register.html">Create student account</a>
+                </div>
+            </section>
+
+            <section class="service-section">
+                <h2 class="sect">Meals managed in the system</h2>
+                <p class="sub">
+                    The canteen menu is organized by meal type so students can quickly find
+                    common dishes, snacks, soups, and drinks. Admins can add new meals, update
+                    prices, upload food images, and publish what is available each day.
+                </p>
+                <div class="service-grid">
+                    <article class="card service-card">
+                        <h3>Main meals</h3>
+                        <p>Ndole and Plantain, Jollof Rice with Chicken, Poulet DG, Eru and Water Fufu, and other full lunch meals.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Soups</h3>
+                        <p>Achu and Yellow Soup, Fish Pepper Soup, and other soup dishes the kitchen can prepare for students.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Snacks</h3>
+                        <p>Puff-Puff, Beignet-Haricot, Fried Plantain, and quick meals students can order between lectures.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Drinks</h3>
+                        <p>Folere, Bissap, bottled water, and other refreshments managed with clear prices and availability.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="grid-3 metrics-row">
+                <article class="card stat">
+                    <div class="n" id="homeDishCount">0</div>
+                    <div class="l">Dishes in database</div>
+                </article>
+                <article class="card stat">
+                    <div class="n" id="homeTodayCount">0</div>
+                    <div class="l">Available today</div>
+                </article>
+                <article class="card stat">
+                    <div class="n">MoMo</div>
+                    <div class="l">Manual payment proof</div>
+                </article>
+            </section>
+
+            <section class="service-section">
+                <h2 class="sect">What the service does</h2>
+                <div class="service-grid">
+                    <article class="card service-card">
+                        <h3>Browse meals</h3>
+                        <p>Students view the daily menu, prices, stock, and meal details from the database.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Order online</h3>
+                        <p>Students add food to the cart and generate an Order ID before payment.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Upload proof</h3>
+                        <p>Students pay the canteen MoMo number on their phone, then upload screenshot proof and transaction ID.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Track pickup</h3>
+                        <p>The kitchen verifies payment, prepares food, marks it ready, and students confirm collection.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="service-section">
+                <h2 class="sect">Who uses it</h2>
+                <div class="grid-3">
+                    <article class="card service-card">
+                        <h3>Students</h3>
+                        <p>Create an account, order meals, upload payment proof, track status, vote weekly, and review food.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Cooks</h3>
+                        <p>Verify payments, move orders through preparation, mark meals ready, and approve meal suggestions.</p>
+                    </article>
+                    <article class="card service-card">
+                        <h3>Admins</h3>
+                        <p>Manage dishes, upload meal images, publish the daily menu, create cooks, and check analytics.</p>
+                    </article>
+                </div>
+            </section>
+        </section>
+    </main>
+    <script src="../js/Store.js">
+</script>
+    <script src="../js/auth.js">
+</script>
+    <script src="../js/Menu.js">
+</script>
+    <script src="../js/Cart.js">
+</script>
+    <script src="../js/Payment.js">
+</script>
+    <script src="../js/Order.js">
+</script>
+    <script src="../js/Staff.js">
+</script>
+    <script src="../js/admin.js">
+</script>
+</body>
 </html>
+
+

@@ -1,63 +1,129 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ICT University Cameroon — Online Canteen</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>About - ICTU Canteen</title>
     <link rel="stylesheet" href="../css folder/Global.css">
     <link rel="stylesheet" href="../css folder/Student.css">
     <script>
         window.PAGE = 'about';
         window.SECTION = 'student';
-        window.PATHS = {
-            home: 'Home.html',
-            menu: 'Menu.html',
-            about: 'About page.html',
-            login: 'Login.html',
-            register: 'Register.html',
-            cart: 'Cart.html',
-            payment: 'Payment.htm',
-            confirmation: 'order.html',
-            receipt: 'Receipt.htm',
-            tracking: 'Order tracking.html',
-            review: 'Review.html',
-            voting: 'Voting.html',
-            staffLogin: '../Staff/Staff-login.html',
-            dashboard: '../Staff/Staff-dashboard.html',
-            paymentVerification: '../Staff/Payment verification.html',
-            adminMenu: '../Admin/Menu-management.html',
-            dailyMenu: '../Admin/Daily-menu.html',
-            votingResults: '../Admin/Voting-results.html',
-            analytics: '../Admin/Analytics.html',
-            manageCooks: '../Admin/Manage-cooks.html'
-        };
+        window.PATHS = { home: 'Home.html', menu: 'Menu.html', about: 'About page.html', login: 'Login.html', register: 'Register.html', cart: 'Cart.html', payment: 'Payment.htm', confirmation: 'order.html', receipt: 'Receipt.htm', tracking: 'Order tracking.html', review: 'Review.html', voting: 'Voting.html', staffLogin: '../Staff/Staff-login.html', dashboard: '../Staff/Staff-dashboard.html', paymentVerification: '../Staff/Payment verification.html', adminMenu: '../Admin/Menu-management.html', dailyMenu: '../Admin/Daily-menu.html', votingResults: '../Admin/Voting-results.html', analytics: '../Admin/Analytics.html', manageCooks: '../Admin/Manage-cooks.html' };
     </script>
 </head>
-
 <body>
-    <div class="topbar">
-        <div class="wrap">
-            <div class="brand" onclick="nav('home')"><span class="dot" style="display:none">🍲</span><img class="brand-logo" src="https://ictuniversity.org/wp-content/uploads/2020/08/cropped-ict-u-logo-shield-small-270x270.png" alt="The ICT University" onerror="this.style.display='none';this.previousElementSibling.style.display='grid'">
-                <div>ICTU Canteen<small>The ICT University</small></div>
-            </div>
-            <div class="role-switch" id="roleSwitch"></div>
-        </div>
-    </div>
-    <main id="app" class="wrap"></main>
-    <div id="toasts" class="toast-zone"></div>
-    <div id="modalRoot"></div>
-    <script src="../js/Store.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/Menu.js"></script>
-    <script src="../js/Cart.js"></script>
-    <script src="../js/Payment.js"></script>
-    <script src="../js/Order.js"></script>
-    <script src="../js/Staff.js"></script>
-    <script src="../js/admin.js"></script>
-</body>
+    <header class="topbar">
+<div class="wrap">
+<a class="brand" href="Home.html">
+<span class="logo-slot"><img class="school-logo" src="../assets/school-logo.png" alt="The ICT University logo" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="dot" hidden>YB</span></span>
+<span>ICTU Canteen<small>The ICT University</small>
+</span>
+</a>
+<nav class="role-switch" id="roleSwitch">
+</nav>
+</div>
+</header>
+    <div id="notice" class="notice" hidden>
+</div>
+    <main class="wrap">
+        <section class="view">
+<nav class="subnav">
+<a class="chip" href="Home.html">Home</a>
+<a class="chip" href="Menu.html">Menu</a>
+<a class="chip on" href="About page.html">About</a>
+</nav>
+<span class="eyebrow">About us</span>
+<h1 class="title">About ICTU Online Canteen</h1>
+<div class="prose">
+<p>ICTU Online Canteen was built to manage student food orders in a simple and organized way. Instead of students waiting in long lines or guessing when food is ready, the app lets them see the daily menu, place an order, upload payment proof, and track the order until pickup.</p>
+<p>The system also helps the canteen staff. Cooks can verify Mobile Money payment proof, see confirmed orders, prepare meals, mark food as ready, and keep a clear record of completed transactions.</p>
+<p>Admins use the system to manage dishes, prices, meal images, daily stock, cooks, votes, suggestions, and order analytics.</p>
+</div>
 
+<h2 class="sect">Dishes on the platform</h2>
+<p class="sub">The menu is built around common campus meals and Cameroonian dishes. Admins can add more dishes, update prices, upload real meal images, and decide what is available each day.</p>
+<div class="service-grid">
+<article class="card service-card">
+<h3>Main meals</h3>
+<p>Examples include Ndole and Plantain, Jollof Rice with Chicken, Poulet DG, Eru and Water Fufu, and other filling lunch meals.</p>
+</article>
+<article class="card service-card">
+<h3>Soups</h3>
+<p>Meals such as Achu and Yellow Soup or Fish Pepper Soup can be added to the daily menu when available.</p>
+</article>
+<article class="card service-card">
+<h3>Snacks</h3>
+<p>Students can order quick options like Puff-Puff, Beignet-Haricot, Fried Plantain, and other canteen snacks.</p>
+</article>
+<article class="card service-card">
+<h3>Drinks</h3>
+<p>The canteen can list drinks like Folere, Bissap, bottled water, and other refreshments with their prices.</p>
+</article>
+</div>
+
+<h2 class="sect">Purpose of the app</h2>
+<div class="grid-3">
+<article class="card service-card">
+<h3>For students</h3>
+<p>Create an account, browse meals, order food, upload payment proof, track cooking status, confirm collection, vote, and review meals.</p>
+</article>
+<article class="card service-card">
+<h3>For cooks</h3>
+<p>Verify payments, manage confirmed tickets, prepare meals, mark orders ready, and approve meal suggestions they can cook.</p>
+</article>
+<article class="card service-card">
+<h3>For admins</h3>
+<p>Control dishes, daily menu, stock, meal photos, staff accounts, voting results, and canteen records.</p>
+</article>
+</div>
+
+<h2 class="sect">The minds behind the website</h2>
+<div class="founder-grid">
+<article class="card founder">
+<div class="avatar" style="background:#d6451f">TJ</div>
+<h3>Tembong Jennette</h3>
+<div class="role">Project Lead and Founder</div>
+<span class="lvl">Level 300 - The ICT University</span>
+</article>
+<article class="card founder">
+<div class="avatar" style="background:#2f7d52">TB</div>
+<h3>Takow Brilliant</h3>
+<div class="role">Co-Founder</div>
+<span class="lvl">Level 300 - The ICT University</span>
+</article>
+<article class="card founder">
+<div class="avatar" style="background:#e2960a">TT</div>
+<h3>Tameh Kigha Troy</h3>
+<div class="role">Co-Founder</div>
+<span class="lvl">Level 300 - The ICT University</span>
+</article>
+<article class="card founder">
+<div class="avatar" style="background:#2f6f9e">NM</div>
+<h3>Ntopi Melvin</h3>
+<div class="role">Co-Founder</div>
+<span class="lvl">Level 300 - The ICT University</span>
+</article>
+</div>
+</section>
+    </main>
+    <script src="../js/Store.js">
+</script>
+<script src="../js/auth.js">
+</script>
+<script src="../js/Menu.js">
+</script>
+<script src="../js/Cart.js">
+</script>
+<script src="../js/Payment.js">
+</script>
+<script src="../js/Order.js">
+</script>
+<script src="../js/Staff.js">
+</script>
+<script src="../js/admin.js">
+</script>
+</body>
 </html>
+
+
