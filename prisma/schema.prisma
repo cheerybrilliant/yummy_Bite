@@ -27,10 +27,10 @@ model User {
 model Dish {
   id          String   @id @default(uuid())
   name        String   @unique
-  description String   @default("") @db.Text
+  description String   @default("") @db.VarChar(1000)
   price       Float
   category    String
-  image       String   @default("") @db.LongText
+  image       String?  @db.LongText
   createdAt   DateTime @default(now())
 
   dailyMenus DailyMenu[]
@@ -125,10 +125,10 @@ model Ballot {
 model MealSuggestion {
   id            String   @id @default(uuid())
   name          String
-  description   String   @default("") @db.Text
+  description   String   @default("") @db.VarChar(1000)
   week          String
   status        String   @default("PENDING")
-  staffNote     String   @default("") @db.Text
+  staffNote     String   @default("") @db.VarChar(1000)
   createdAt     DateTime @default(now())
   reviewedAt    DateTime?
   suggestedById String
@@ -142,7 +142,7 @@ model TransactionLog {
   orderId   String
   userId    String?
   action    String
-  note      String   @default("") @db.Text
+  note      String   @default("") @db.VarChar(1000)
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -150,5 +150,5 @@ model TransactionLog {
 
 model Setting {
   key   String @id
-  value String @default("") @db.LongText
+  value String? @db.LongText
 }
