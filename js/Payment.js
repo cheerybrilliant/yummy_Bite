@@ -5,15 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function initPaymentPage() {
     if (!App.requireRole("STUDENT")) return;
-    App.apiJson("/api/settings").then(s => {
-        const mtn = document.getElementById("mtnNumber");
-        const orange = document.getElementById("orangeNumber");
-        if (mtn) mtn.textContent = s.mtn_number || "Not set";
-        if (orange) orange.textContent = s.orange_number || "Not set";
-    });
+    await loadPaymentNumbers();
     document.getElementById("generateOrderButton").addEventListener("click", generateOrderForPayment);
     document.getElementById("paymentProofForm").addEventListener("submit", submitPaymentProof);
     await renderPaymentSummary();
+}
+
+async function loadPaymentNumbers() {
+    const mtn = document.getElementById("mtnNumber");
+    const orange = document.getElementById("orangeNumber");
+    try {
+        const settings = await App.apiJson("/api/settings");
+        if (mtn) mtn.textContent = settings.mtn_number || "Not set by admin";
+        if (orange) orange.textContent = settings.orange_number || "Not set by admin";
+    } catch (error) {
+        // Leave the existing Loading text in place when the backend is unavailable.
+    }
 }
 
 async function renderPaymentSummary() {

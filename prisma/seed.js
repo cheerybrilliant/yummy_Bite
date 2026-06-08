@@ -1,4 +1,6 @@
 const bcrypt = require("bcryptjs");
+const fs = require("fs");
+const path = require("path");
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
@@ -16,6 +18,12 @@ async function upsertUser({ name, email, password, role, phone }) {
     update: { name, password: hashed, role, phone },
     create: { name, email, password: hashed, role, phone },
   });
+}
+
+function foodImage(fileName) {
+  const publicPath = `images/${fileName}`;
+  const absolutePath = path.join(process.cwd(), publicPath);
+  return fs.existsSync(absolutePath) ? publicPath : undefined;
 }
 
 async function main() {
@@ -42,23 +50,26 @@ async function main() {
   });
 
   const dishes = [
-    ["Ndole & Plantain", "Greens stew with ripe plantain", 2500, "Mains"],
-    ["Jollof Rice + Chicken", "Spiced rice served with chicken", 2000, "Mains"],
-    ["Poulet DG", "Chicken, plantain and vegetables", 3000, "Mains"],
-    ["Eru & Water Fufu", "Eru soup with water fufu", 2200, "Mains"],
-    ["Achu & Yellow Soup", "Achu with yellow soup", 2800, "Soups"],
-    ["Fish Pepper Soup", "Hot pepper soup with fish", 2800, "Soups"],
-    ["Puff-Puff (x5)", "Five fresh puff-puff balls", 500, "Snacks"],
-    ["Beignet-Haricot", "Beignets with beans", 800, "Snacks"],
-    ["Folere / Bissap", "Cold hibiscus drink", 600, "Drinks"],
-    ["Bottled Water", "Fresh bottled water", 300, "Drinks"],
+    ["Ndole & Plantain", "Greens stew with ripe plantain", 2500, "Mains", "Ndole & Plantain.jfif"],
+    ["Jollof Rice + Chicken", "Spiced rice served with chicken", 2000, "Mains", "Jollof Rice + Chicken.jfif"],
+    ["Poulet DG", "Chicken, plantain and vegetables", 3000, "Mains", "Poulet DG.jfif"],
+    ["Eru & Water Fufu", "Eru soup with water fufu", 2200, "Mains", "Eru and waterfufu.jfif"],
+    ["Achu & Yellow Soup", "Achu with yellow soup", 2800, "Soups", "Achu & Yellow Soup.jfif"],
+    ["Fish Pepper Soup", "Hot pepper soup with fish", 2800, "Soups", "fish pepper soup.jfif"],
+    ["Puff-Puff (x5)", "Five fresh puff-puff balls", 500, "Snacks", "Puff Puff.jfif"],
+    ["Beignet-Haricot", "Beignets with beans", 800, "Snacks", "Beignet-Haricot.jfif"],
+    ["Folere / Bissap", "Cold hibiscus drink", 600, "Drinks", "FolereBissap.jfif"],
+    ["Bottled Water", "Fresh bottled water", 300, "Drinks", "bottled water.jfif"],
   ];
 
-  for (const [name, description, price, category] of dishes) {
+  for (const [name, description, price, category, fileName] of dishes) {
+    const image = foodImage(fileName);
+    const data = { description, price, category };
+    if (image) data.image = image;
     await prisma.dish.upsert({
       where: { name },
-      update: { description, price, category },
-      create: { name, description, price, category },
+      update: data,
+      create: { name, ...data },
     });
   }
 

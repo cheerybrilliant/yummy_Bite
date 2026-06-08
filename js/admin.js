@@ -179,9 +179,13 @@ async function deleteCook(id) {
 
 async function initSettingsPage() {
     if (!App.requireRole("ADMIN")) return;
-    const settings = await App.apiJson("/api/settings");
-    document.getElementById("mtnInput").value = settings.mtn_number || "";
-    document.getElementById("orangeInput").value = settings.orange_number || "";
+    try {
+        const settings = await App.apiJson("/api/settings");
+        document.getElementById("mtnInput").value = settings.mtn_number || "";
+        document.getElementById("orangeInput").value = settings.orange_number || "";
+    } catch (error) {
+        // Leave fields empty when settings cannot be loaded.
+    }
     document.getElementById("settingsForm").addEventListener("submit", async event => {
         event.preventDefault();
         const form = event.currentTarget;

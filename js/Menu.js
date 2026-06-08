@@ -58,6 +58,7 @@ async function loadStudentMenu() {
             if (dish.image) {
                 image.src = dish.image;
                 image.alt = dish.name;
+                image.onerror = () => image.remove();
             } else {
                 image.remove();
             }
